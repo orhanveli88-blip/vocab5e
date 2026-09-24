@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Vocabulary Master · Grade 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F1ED;          /* cream / cashmere */
+  --card:#FFFFFF;
+  --ink:#4A4238;         /* deep brown */
+  --muted:#8C7E6E;       /* taupe (a touch darker for contrast) */
+  --line:#EAE6E0;
+  --soft:#FAF8F5;
+  --accent:#944E38;      /* vicuna / terracotta */
+  --accent-soft:#F6EEEA;
+  --ok:#5F7F1F;          /* muted olive */
+  --ok-soft:#F2F6EA;
+  --bad:#A52A2A;
+  --bad-soft:#FBEFEF;
+  --gold:#C9A24B;
+  --radius:8px;
+  --shadow:0 18px 44px rgba(74,66,56,.09);
+  --h:min(760px, calc(100dvh - 24px));
+  --fs-word:clamp(2rem, 7vw, 2.5rem);
+  --fs-opt:1.08rem;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Lato',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  display:flex;justify-content:center;align-items:center;min-height:100vh;padding:12px;overflow-x:hidden;
+}
+button{font:inherit;color:inherit}
+.app{
+  background:var(--card);width:100%;max-width:500px;height:var(--h);
+  padding:34px 24px 22px;border-radius:4px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.app::before{ /* thin terracotta rule at the top */
+  content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--accent);opacity:.85
+}
+.screen{display:none;flex-direction:column;height:100%;min-height:0}
+.screen.active{display:flex}
+h1{font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1.05;color:var(--accent);letter-spacing:-.5px}
+h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
+.eyebrow{font-size:.74rem;letter-spacing:2.2px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+
+/* ---------- buttons ---------- */
+.btn{
+  background:var(--accent);color:#fff;border:none;padding:17px 34px;font-size:.86rem;
+  text-transform:uppercase;letter-spacing:1.6px;font-weight:700;cursor:pointer;border-radius:3px;
+  box-shadow:0 6px 16px rgba(148,78,56,.2);transition:transform .1s, box-shadow .1s, opacity .2s;touch-action:manipulation
+}
+.btn:active{transform:translateY(1px);box-shadow:0 2px 6px rgba(148,78,56,.2)}
+.btn.ghost{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.btn.ok{background:var(--ok);box-shadow:0 6px 16px rgba(95,127,31,.22)}
+.btn:disabled{opacity:.35;cursor:default;box-shadow:none}
+.link{
+  background:none;border:none;color:var(--muted);font-size:.86rem;cursor:pointer;padding:10px 6px;
+  border-bottom:1px solid transparent;transition:border-color .2s,color .2s
+}
+.link:hover{color:var(--ink);border-bottom-color:var(--muted)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px}
+
+/* ---------- cover ---------- */
+#cover{justify-content:center;align-items:center;text-align:center}
+.cover-mark{font-family:'Playfair Display',serif;font-style:italic;color:var(--gold);font-size:1.05rem;margin-bottom:14px}
+.cover-rule{width:44px;height:1px;background:var(--muted);opacity:.5;margin:22px auto}
+.cover-foot{margin-top:auto;font-size:.9rem;color:var(--muted)}
+.cover-foot em{font-family:'Playfair Display',serif;font-style:italic;color:var(--ink)}
+
+/* ---------- lists ---------- */
+.list{flex:1;overflow-y:auto;border-top:1px solid var(--line);-webkit-overflow-scrolling:touch;min-height:0}
+.row{
+  width:100%;background:transparent;border:none;border-bottom:1px solid var(--line);
+  padding:18px 8px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;transition:background .2s
+}
+.row:hover{background:var(--soft)}
+.row .num{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--accent);width:30px;flex:none;text-align:center}
+.row .main{flex:1;min-width:0}
+.row .title{font-family:'Playfair Display',serif;font-size:1.18rem;line-height:1.25}
+.row .sub{font-size:.78rem;color:var(--muted);margin-top:4px;letter-spacing:.3px}
+.row .arrow{color:var(--muted);flex:none}
+.dots{display:flex;gap:4px;margin-top:7px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.played{background:#D9C7BC}
+.dots i.done{background:var(--ok)}
+.badge{
+  font-size:.7rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:5px 9px;border-radius:4px;flex:none;
+  background:var(--ok-soft);color:var(--ok)
+}
+.badge.part{background:var(--accent-soft);color:var(--accent)}
+.lvl{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}
+.lvl b{width:12px;height:4px;border-radius:2px;background:var(--line)}
+.lvl b.on{background:var(--accent)}
+
+/* ---------- quiz ---------- */
+.qhead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.qhead .where{font-size:.8rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;font-weight:700}
+.qhead .count{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.mode-tag{display:none;font-size:.68rem;letter-spacing:1px;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);
+  padding:3px 7px;border-radius:3px;margin-left:6px;vertical-align:1px}
+.review .mode-tag{display:inline-block}
+.progress{height:3px;background:var(--line);margin:12px 0 0;border-radius:2px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent);width:0;transition:width .35s ease}
+.review .progress>div{background:var(--gold)}
+.stage{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;padding:12px 0}
+.word-wrap{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:26px;min-height:80px}
+#word{font-family:'Playfair Display',serif;font-size:var(--fs-word);line-height:1.15;text-align:center;overflow-wrap:anywhere}
+.audio{
+  background:none;border:none;cursor:pointer;color:var(--muted);padding:10px;border-radius:50%;flex:none;
+  display:inline-flex;transition:color .2s,background .2s
+}
+.audio:hover{color:var(--accent);background:var(--accent-soft)}
+.audio svg{width:24px;height:24px}
+.no-speech .audio{display:none}
+.options{display:grid;grid-template-columns:1fr;gap:12px}
+.opt{
+  position:relative;width:100%;background:#fff;border:1px solid #DEDAD4;padding:17px 44px 17px 18px;
+  font-size:var(--fs-opt);border-radius:var(--radius);cursor:pointer;text-align:left;line-height:1.3;
+  transition:border-color .15s,background .15s,transform .1s;touch-action:manipulation;min-height:60px;display:flex;align-items:center
+}
+.opt .key{
+  flex:none;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);font-size:.72rem;color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;margin-right:12px;font-weight:700
+}
+.opt:hover:not(:disabled){border-color:var(--accent);background:var(--soft)}
+.opt:active:not(:disabled){transform:scale(.99)}
+.opt:disabled{cursor:default}
+.opt .mark{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-weight:700;font-size:1.1rem}
+.opt.correct{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.correct .key{border-color:rgba(255,255,255,.5);color:#fff}
+.opt.correct .mark::after{content:"\2713"}
+.opt.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.wrong .key{border-color:rgba(255,255,255,.5);color:#fff}
+.opt.wrong .mark::after{content:"\2715"}
+.opt.dim{opacity:.45}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.025)}100%{transform:scale(1)}}
+.pop{animation:pop .3s ease}
+.navbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.navbar .prev{justify-self:start}
+.navbar .next{justify-self:end}
+.navbtn{
+  display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--accent);color:var(--accent);
+  padding:12px 18px;border-radius:3px;cursor:pointer;font-size:.8rem;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;
+  transition:background .15s,color .15s,opacity .2s;touch-action:manipulation
+}
+.navbtn svg{width:16px;height:16px}
+.navbtn.primary{background:var(--accent);color:#fff}
+.navbtn:disabled{opacity:.28;cursor:default}
+.navbtn:not(:disabled):hover{background:var(--accent-soft)}
+.navbtn.primary:not(:disabled):hover{background:#7E412E}
+.navbar .link{font-size:.8rem}
+
+/* ---------- result ---------- */
+#result{text-align:center}
+.fin{font-family:'Playfair Display',serif;font-style:italic;font-size:3rem;color:var(--accent);line-height:1;margin-top:6px}
+.score-big{font-family:'Playfair Display',serif;font-size:1.3rem;margin:10px 0 4px}
+.score-note{font-size:.9rem;color:var(--muted)}
+.mistakes{
+  text-align:left;margin:18px 0 6px;flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);
+  border-radius:4px;background:var(--soft);padding:6px 14px
+}
+.mistakes .cap{font-size:.7rem;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;padding:10px 0 6px;font-weight:700}
+.m-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:.95rem}
+.m-item .en{font-weight:700;flex:1;min-width:0}
+.m-item .tr{color:var(--bad);text-align:right;flex:1;min-width:0}
+.m-item .audio{padding:6px}
+.m-item .audio svg{width:18px;height:18px}
+.spacer{flex:1}
+.actions{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:14px}
+.actions .btn{width:100%;max-width:340px}
+.actions .row2{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.clear{margin:22px auto 0;max-width:320px;font-size:.95rem;color:var(--muted);line-height:1.5}
+
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:999}
+
+/* ---------- smartboard / large screens ---------- */
+@media (min-width:900px) and (min-height:620px){
+  :root{--h:min(900px, calc(100dvh - 40px));--fs-word:3.6rem;--fs-opt:1.4rem}
+  body{padding:20px}
+  .app{max-width:980px;padding:44px 56px 28px}
+  h1{font-size:3.6rem}
+  h2{font-size:2rem}
+  .options{grid-template-columns:1fr 1fr;gap:18px}
+  .opt{min-height:86px;padding:22px 52px 22px 22px}
+  .opt .key{width:32px;height:32px;font-size:.85rem}
+  .word-wrap{margin-bottom:40px}
+  .audio svg{width:32px;height:32px}
+  .row{padding:22px 12px}
+  .row .title{font-size:1.45rem}
+  .navbtn{padding:15px 26px;font-size:.92rem}
+  .qhead .where{font-size:1rem}.qhead .count{font-size:1.05rem}
+  .fin{font-size:4rem}.score-big{font-size:1.7rem}
+  .m-item{font-size:1.1rem}
+}
+@media (max-width:380px){
+  .app{padding:28px 16px 16px}
+  .navbtn{padding:11px 12px;letter-spacing:.8px}
+  .navbtn .lbl{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="app" id="app">
+
+  <!-- COVER -->
+  <section id="cover" class="screen active">
+    <div style="margin-top:auto">
+      <div class="cover-mark">Grade 5</div>
+      <h1>Vocabulary<br>Master</h1>
+      <div class="cover-rule"></div>
+      <div class="eyebrow">English Practice</div>
+    </div>
+    <button class="btn" id="start" style="margin-top:44px">Start</button>
+    <div class="cover-foot" style="padding-top:40px">Prepared by your teacher, <em>Mr. Yıldırım</em>.</div>
+  </section>
+
+  <!-- THEMES -->
+  <section id="themes" class="screen">
+    <div class="topbar"><span class="eyebrow">Grade 5 · Vocabulary</span></div>
+    <h2 style="margin-bottom:18px">Choose a Theme</h2>
+    <div class="list" id="theme-list"></div>
+  </section>
+
+  <!-- SETS -->
+  <section id="sets" class="screen">
+    <div class="topbar"><button class="link back" id="sets-back">&larr; All themes</button></div>
+    <div class="eyebrow" id="sets-eyebrow">Theme 1</div>
+    <h2 id="sets-title" style="margin:4px 0 6px">School Life</h2>
+    <p class="muted" style="font-size:.86rem;margin-bottom:16px">Sets go from easy to hard. Start with Set 1.</p>
+    <div class="list" id="set-list"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <div class="qhead">
+      <div class="where"><span id="q-where">Theme 1 · Set 1</span><span class="mode-tag">Review</span></div>
+      <div class="count"><span id="q-pos">1 / 20</span> &nbsp;·&nbsp; <span id="q-score">0</span> &#10003;</div>
+    </div>
+    <div class="progress"><div id="q-bar"></div></div>
+    <div class="stage">
+      <div class="word-wrap">
+        <h2 id="word">word</h2>
+        <button class="audio" id="q-audio" aria-label="Listen" title="Listen (Space)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        </button>
+      </div>
+      <div class="options" id="options"></div>
+    </div>
+    <div class="navbar">
+      <button class="navbtn prev" id="prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Previous</span>
+      </button>
+      <button class="link" id="exit">Exit</button>
+      <button class="navbtn next primary" id="next" aria-label="Next">
+        <span class="lbl" id="next-lbl">Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen">
+    <div class="eyebrow" id="r-where">Theme 1 · Set 1</div>
+    <div class="fin" id="r-fin">Fin.</div>
+    <div class="score-big" id="r-score">You scored 18 out of 20</div>
+    <div class="score-note" id="r-note">Best: 18 / 20</div>
+    <div class="mistakes" id="r-mistakes">
+      <div class="cap">Words to review</div>
+      <div id="r-items"></div>
+    </div>
+    <div class="clear" id="r-clear"></div>
+    <div class="spacer" id="r-spacer"></div>
+    <div class="actions">
+      <button class="btn" id="r-primary">Practice mistakes</button>
+      <div class="row2">
+        <button class="link" id="r-retry">Retry set</button>
+        <button class="link" id="r-next">Next set &rarr;</button>
+        <button class="link" id="r-sets">All sets</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* =========================================================
+   DATA — 5th grade MEB Word List (5A), Themes 1–8.
+   Each theme is split into sets ordered from easy to hard.
+   g = synonym group: words in the same group never appear
+   as wrong options for each other.
+   ========================================================= */
+const THEMES = [{"title": "School Life", "sets": [[{"en": "girl", "tr": "kız çocuk"}, {"en": "boy", "tr": "erkek çocuk", "g": [21]}, {"en": "use", "tr": "kullanmak"}, {"en": "student", "tr": "öğrenci"}, {"en": "teacher", "tr": "öğretmen", "g": [16]}, {"en": "song", "tr": "şarkı"}, {"en": "learn", "tr": "öğrenmek"}, {"en": "have a break", "tr": "mola vermek", "g": [8]}, {"en": "man", "tr": "adam; yetişkin erkek", "g": [21]}, {"en": "bring", "tr": "getirmek"}, {"en": "teach", "tr": "öğretmek", "g": [16]}, {"en": "classroom", "tr": "sınıf; derslik"}, {"en": "at the end of the day", "tr": "günün sonunda"}, {"en": "leave", "tr": "ayrılmak"}, {"en": "school nurse", "tr": "okul hemşiresi"}, {"en": "enter", "tr": "girmek"}, {"en": "national day", "tr": "ulusal gün", "g": [17]}, {"en": "once a week", "tr": "haftada bir kez", "g": [12]}, {"en": "meeting", "tr": "toplantı", "g": [0]}, {"en": "get ready", "tr": "hazırlanmak", "g": [4]}, {"en": "new term", "tr": "yeni dönem"}, {"en": "people at school", "tr": "okuldaki kişiler"}], [{"en": "search for", "tr": "aramak; araştırmak"}, {"en": "protect", "tr": "korumak", "g": [19]}, {"en": "competition", "tr": "yarışma"}, {"en": "three times a week", "tr": "haftada üç kez", "g": [12]}, {"en": "classmate", "tr": "sınıf arkadaşı"}, {"en": "school rules", "tr": "okul kuralları", "g": [9]}, {"en": "at the beginning of the day", "tr": "günün başında"}, {"en": "offer support", "tr": "destek sunmak", "g": [10]}, {"en": "celebration", "tr": "kutlama"}, {"en": "decide", "tr": "karar vermek", "g": [2]}, {"en": "responsibility", "tr": "sorumluluk", "g": [20]}, {"en": "poem", "tr": "şiir"}, {"en": "foreign language", "tr": "yabancı dil"}, {"en": "religious day", "tr": "dini gün", "g": [18]}, {"en": "ancient", "tr": "antik; çok eski", "g": [14]}, {"en": "make decisions", "tr": "karar almak", "g": [2]}, {"en": "different ideas", "tr": "farklı fikirler"}, {"en": "school garden", "tr": "okul bahçesi"}, {"en": "attend", "tr": "katılmak; devam etmek", "g": [0]}, {"en": "prepare", "tr": "hazırlamak", "g": [4]}, {"en": "manage", "tr": "yönetmek", "g": [20]}], [{"en": "raise your hand", "tr": "söz almak için el kaldırmak"}, {"en": "Republic Day", "tr": "Cumhuriyet Bayramı", "g": [17]}, {"en": "committee", "tr": "komite"}, {"en": "make noise", "tr": "gürültü yapmak"}, {"en": "repeat", "tr": "tekrarlamak"}, {"en": "fix problems", "tr": "sorunları çözmek"}, {"en": "temple", "tr": "tapınak"}, {"en": "timetable", "tr": "ders programı"}, {"en": "participate in", "tr": "katılmak", "g": [0]}, {"en": "lunch break", "tr": "öğle molası", "g": [8]}, {"en": "arrive on time", "tr": "zamanında gelmek", "g": [7]}, {"en": "school clubs", "tr": "okul kulüpleri"}, {"en": "damage", "tr": "zarar vermek; zarar", "g": [19]}, {"en": "give health advice", "tr": "sağlık tavsiyesi vermek"}, {"en": "feed animals", "tr": "hayvanları beslemek"}, {"en": "chewing gum", "tr": "sakız", "g": [6]}, {"en": "guidance", "tr": "rehberlik", "g": [11]}, {"en": "attend a meeting", "tr": "toplantıya katılmak", "g": [0]}, {"en": "do tasks", "tr": "görevleri yapmak"}, {"en": "historic site", "tr": "tarihî yer", "g": [14]}, {"en": "take care of", "tr": "ilgilenmek; bakımını yapmak", "g": [20]}, {"en": "guide", "tr": "yol göstermek; rehberlik etmek", "g": [11]}], [{"en": "cultural tradition", "tr": "kültürel gelenek"}, {"en": "illegal", "tr": "yasa dışı"}, {"en": "provide", "tr": "sağlamak; sunmak", "g": [10]}, {"en": "wear a uniform", "tr": "üniforma giymek"}, {"en": "local law", "tr": "yerel yasa"}, {"en": "public", "tr": "halka açık; kamusal"}, {"en": "shout", "tr": "bağırmak"}, {"en": "headmaster", "tr": "erkek okul müdürü", "g": [1]}, {"en": "notice", "tr": "fark etmek; dikkat etmek", "g": [15]}, {"en": "cleaner", "tr": "temizlik görevlisi", "g": [3]}, {"en": "headteacher", "tr": "okul müdürü", "g": [1]}, {"en": "bully", "tr": "zorbalık yapmak"}, {"en": "preparations", "tr": "hazırlıklar", "g": [4]}, {"en": "come up with an idea", "tr": "bir fikir bulmak"}, {"en": "follow safety instructions", "tr": "güvenlik talimatlarına uymak", "g": [9]}, {"en": "put on a show", "tr": "gösteri sergilemek"}, {"en": "obey rules", "tr": "kurallara uymak", "g": [9]}, {"en": "throw rubbish", "tr": "çöpü çöp kutusuna atmak", "g": [5]}, {"en": "support classmates", "tr": "sınıf arkadaşlarına destek olmak", "g": [10]}, {"en": "school routines", "tr": "okul rutinleri", "g": [13]}, {"en": "rubbish bin", "tr": "çöp kutusu", "g": [5]}], [{"en": "librarian", "tr": "kütüphaneci"}, {"en": "throw litter", "tr": "yere çöp atmak", "g": [5]}, {"en": "daily planner", "tr": "günlük planlayıcı"}, {"en": "organise books", "tr": "kitapları düzenlemek"}, {"en": "politely", "tr": "kibarca"}, {"en": "daily routines", "tr": "günlük rutinler", "g": [13]}, {"en": "caretaker", "tr": "okul görevlisi (bina bakımı)", "g": [3]}, {"en": "welfare", "tr": "refah; esenlik"}, {"en": "at lunchtime", "tr": "öğle yemeği saatinde", "g": [8]}, {"en": "counsellor", "tr": "rehber öğretmen", "g": [11]}, {"en": "chew gum in public", "tr": "halka açık yerde sakız çiğnemek", "g": [6]}, {"en": "have a blast", "tr": "çok eğlenmek"}, {"en": "punctual", "tr": "dakik; zamanında gelen", "g": [7]}, {"en": "National Sovereignty and Children's Day", "tr": "Ulusal Egemenlik ve Çocuk Bayramı", "g": [17]}, {"en": "litter", "tr": "yere atılan çöp", "g": [5]}, {"en": "headmistress", "tr": "kadın okul müdürü", "g": [1]}, {"en": "Democracy and National Unity Day", "tr": "Demokrasi ve Millî Birlik Günü", "g": [17]}, {"en": "noticeboard", "tr": "duyuru panosu", "g": [15]}, {"en": "finalise", "tr": "son hâline getirmek"}, {"en": "Eid-al-Adha", "tr": "Kurban Bayramı", "g": [18]}, {"en": "Eid-al-Fitr", "tr": "Ramazan Bayramı", "g": [18]}, {"en": "Commemoration of Atatürk, Youth and Sports Day", "tr": "Atatürk'ü Anma, Gençlik ve Spor Bayramı", "g": [17]}]]}, {"title": "Classroom Life", "sets": [[{"en": "problem", "tr": "sorun; problem"}, {"en": "project", "tr": "proje", "g": [27]}, {"en": "technology", "tr": "teknoloji"}, {"en": "on time", "tr": "zamanında", "g": [10]}, {"en": "shoes", "tr": "ayakkabılar"}, {"en": "smart board", "tr": "akıllı tahta"}, {"en": "practice", "tr": "alıştırma; pratik", "g": [15]}, {"en": "stand up", "tr": "ayağa kalkmak"}, {"en": "late", "tr": "geç"}, {"en": "Mexico", "tr": "Meksika", "g": [26]}, {"en": "laptop", "tr": "dizüstü bilgisayar"}, {"en": "assistant", "tr": "asistan; yardımcı", "g": [0]}, {"en": "fantastic", "tr": "harika"}, {"en": "paragraph", "tr": "paragraf"}, {"en": "country", "tr": "ülke"}, {"en": "screen", "tr": "ekran"}, {"en": "check", "tr": "kontrol etmek", "g": [2]}, {"en": "minutes", "tr": "dakikalar"}, {"en": "Information Technology (IT)", "tr": "Bilişim Teknolojileri (BT)", "g": [11]}, {"en": "Turkish", "tr": "Türkçe (ders)", "g": [11]}], [{"en": "share", "tr": "paylaşmak"}, {"en": "return", "tr": "iade etmek; geri vermek", "g": [6]}, {"en": "present", "tr": "sunmak", "g": [8, 27]}, {"en": "answer", "tr": "cevaplamak"}, {"en": "school friends", "tr": "okul arkadaşları"}, {"en": "match", "tr": "eşleştirmek"}, {"en": "review", "tr": "gözden geçirmek; tekrar etmek", "g": [2]}, {"en": "until", "tr": "-e kadar"}, {"en": "complete", "tr": "tamamlamak", "g": [1]}, {"en": "turn on/off", "tr": "açmak/kapatmak"}, {"en": "break time", "tr": "teneffüs; mola zamanı", "g": [10]}, {"en": "special thanks", "tr": "özel teşekkürler"}, {"en": "have no idea", "tr": "hiçbir fikri olmamak", "g": [18]}, {"en": "do practice", "tr": "pratik yapmak", "g": [7, 15]}, {"en": "subject", "tr": "ders (okul dersi)", "g": [11]}, {"en": "point at the board", "tr": "tahtayı işaret etmek"}, {"en": "extra time", "tr": "ekstra süre"}, {"en": "explain", "tr": "açıklamak"}, {"en": "responsible for", "tr": "-den sorumlu", "g": [3, 17]}, {"en": "responsible", "tr": "sorumlu", "g": [17]}], [{"en": "stand in line", "tr": "sırada beklemek; sıraya girmek"}, {"en": "write down", "tr": "yazıya geçirmek", "g": [5]}, {"en": "English Reading", "tr": "İngilizce Okuma", "g": [11]}, {"en": "materials", "tr": "ders malzemeleri", "g": [14]}, {"en": "copy", "tr": "kopyalamak; aynısını yazmak", "g": [5]}, {"en": "school subject", "tr": "okul dersi", "g": [11]}, {"en": "responsibility", "tr": "sorumluluk", "g": [3, 17]}, {"en": "Spanish", "tr": "İspanyolca; İspanyol", "g": [26]}, {"en": "follow the rules", "tr": "kurallara uymak", "g": [12]}, {"en": "pair", "tr": "çift; ikili", "g": [16]}, {"en": "school trip", "tr": "okul gezisi", "g": [23]}, {"en": "take notes", "tr": "not almak", "g": [5]}, {"en": "support learning", "tr": "öğrenmeyi desteklemek"}, {"en": "count down", "tr": "geriye doğru saymak", "g": [21]}, {"en": "take your seat", "tr": "yerine oturmak", "g": [13]}, {"en": "Visual Arts", "tr": "Görsel Sanatlar", "g": [11]}, {"en": "canteen", "tr": "kantin"}, {"en": "discuss", "tr": "tartışmak; fikir alışverişi yapmak"}, {"en": "comfortable", "tr": "rahat"}, {"en": "digital story", "tr": "dijital hikâye"}], [{"en": "turn to your partner", "tr": "yanındaki arkadaşına dönmek", "g": [16]}, {"en": "weekly", "tr": "haftalık", "g": [20]}, {"en": "listen to the teacher", "tr": "öğretmeni dinlemek"}, {"en": "return to your seat", "tr": "yerine dönmek", "g": [13]}, {"en": "raise your hand", "tr": "söz almak için el kaldırmak"}, {"en": "bring your materials", "tr": "malzemelerini getirmek", "g": [14]}, {"en": "pack your things", "tr": "eşyalarını toplamak", "g": [19]}, {"en": "dictionary", "tr": "sözlük"}, {"en": "fun corner", "tr": "eğlence köşesi"}, {"en": "give examples", "tr": "örnek vermek"}, {"en": "repeat", "tr": "tekrarlamak", "g": [2]}, {"en": "after-school activities", "tr": "okul sonrası etkinlikler"}, {"en": "magazine page", "tr": "dergi sayfası", "g": [20]}, {"en": "timetable", "tr": "ders programı"}, {"en": "star student of the week", "tr": "haftanın yıldız öğrencisi", "g": [20]}, {"en": "golden rules", "tr": "altın kurallar", "g": [12]}, {"en": "quote of the week", "tr": "haftanın sözü", "g": [20]}, {"en": "monitor", "tr": "sınıf başkanı; görevli öğrenci", "g": [0]}, {"en": "remind", "tr": "hatırlatmak"}], [{"en": "finish your task", "tr": "görevini tamamlamak", "g": [1]}, {"en": "count from … to …", "tr": "…den …e kadar saymak", "g": [21]}, {"en": "presentation", "tr": "sunum", "g": [8, 27]}, {"en": "weekly magazine", "tr": "haftalık dergi", "g": [20]}, {"en": "touch your desk", "tr": "sırana dokunmak"}, {"en": "instruction", "tr": "talimat; yönerge", "g": [12]}, {"en": "seat", "tr": "koltuk; oturacak yer", "g": [13]}, {"en": "ma'am", "tr": "hanımefendi (öğretmene hitap)"}, {"en": "slippers", "tr": "terlikler"}, {"en": "borrow", "tr": "ödünç almak", "g": [6]}, {"en": "classroom rules", "tr": "sınıf kuralları", "g": [12]}, {"en": "atmosphere", "tr": "ortam; hava (sınıfın havası)"}, {"en": "place of interest", "tr": "görülmeye değer yer", "g": [23]}, {"en": "study for exams", "tr": "sınavlara çalışmak", "g": [7, 24]}, {"en": "classroom objects", "tr": "sınıf eşyaları", "g": [14, 25]}, {"en": "rubbish", "tr": "çöp", "g": [9]}, {"en": "feedback", "tr": "geri bildirim"}, {"en": "Robotic Coding", "tr": "Robotik Kodlama", "g": [11]}, {"en": "bookshelf", "tr": "kitaplık"}, {"en": "stuck on", "tr": "(bir konuda) takılmak", "g": [18]}], [{"en": "study alone/individually", "tr": "tek başına / bireysel çalışmak", "g": [7, 24]}, {"en": "worksheet", "tr": "çalışma kâğıdı"}, {"en": "tidy", "tr": "toplamak; düzenli", "g": [4, 9, 19]}, {"en": "study routines", "tr": "ders çalışma rutinleri", "g": [24]}, {"en": "organise", "tr": "düzenlemek; planlamak", "g": [4]}, {"en": "entire classroom", "tr": "sınıfın tamamı", "g": [25]}, {"en": "take care of classroom objects", "tr": "sınıf eşyalarına özen göstermek", "g": [14]}, {"en": "helper", "tr": "yardım eden kişi", "g": [0]}, {"en": "counsellor", "tr": "rehber öğretmen"}, {"en": "Tales and Legends", "tr": "Masallar ve Efsaneler", "g": [11]}, {"en": "assistant to the headmaster", "tr": "müdür yardımcısı", "g": [0]}, {"en": "Religion and Morals", "tr": "Din Kültürü ve Ahlak Bilgisi", "g": [11]}, {"en": "respectfully", "tr": "saygılı bir şekilde"}, {"en": "cardinal numbers", "tr": "asıl sayılar (one, two, three…)", "g": [21]}, {"en": "coursebook", "tr": "ders kitabı"}, {"en": "be excused", "tr": "(sınıftan çıkmak için) izin almak"}, {"en": "ordinal numbers", "tr": "sıra sayıları (first, second…)", "g": [21]}, {"en": "falling intonation", "tr": "düşen tonlama", "g": [22]}, {"en": "rising intonation", "tr": "yükselen tonlama", "g": [22]}, {"en": "utterance", "tr": "söz; söylenen ifade", "g": [22]}]]}, {"title": "Personal Life", "sets": [[{"en": "jacket", "tr": "ceket"}, {"en": "heart", "tr": "kalp"}, {"en": "back", "tr": "sırt"}, {"en": "try on", "tr": "(kıyafet) denemek", "g": [5]}, {"en": "finger", "tr": "parmak"}, {"en": "good-looking", "tr": "yakışıklı; güzel", "g": [0]}, {"en": "scarf", "tr": "atkı; eşarp"}, {"en": "straight", "tr": "düz (saç)"}, {"en": "belt", "tr": "kemer"}, {"en": "skin", "tr": "cilt; ten"}, {"en": "ring", "tr": "yüzük", "g": [7]}, {"en": "creative", "tr": "yaratıcı"}, {"en": "gloves", "tr": "eldiven"}, {"en": "attractive", "tr": "çekici", "g": [0]}, {"en": "height", "tr": "boy (uzunluk)"}, {"en": "helmet", "tr": "kask"}, {"en": "tie", "tr": "kravat"}], [{"en": "shoulder", "tr": "omuz"}, {"en": "pyjamas", "tr": "pijama"}, {"en": "get dressed", "tr": "giyinmek", "g": [5]}, {"en": "handbag", "tr": "el çantası"}, {"en": "physical appearance", "tr": "fiziksel görünüş", "g": [6]}, {"en": "brave", "tr": "cesur"}, {"en": "knee", "tr": "diz"}, {"en": "silver", "tr": "gümüş", "g": [7]}, {"en": "suit", "tr": "takım elbise"}, {"en": "bright", "tr": "parlak; zeki", "g": [1]}, {"en": "slippers", "tr": "ev terliği", "g": [2]}, {"en": "chin", "tr": "çene"}, {"en": "hoodie", "tr": "kapüşonlu sweatshirt", "g": [3]}, {"en": "swimming costume", "tr": "mayo"}, {"en": "tongue", "tr": "dil"}, {"en": "necklace", "tr": "kolye", "g": [7]}, {"en": "wardrobe", "tr": "gardırop; kıyafet dolabı"}], [{"en": "jewellery", "tr": "takı; mücevher", "g": [7]}, {"en": "bracelet", "tr": "bileklik", "g": [7]}, {"en": "jumper", "tr": "kazak", "g": [3]}, {"en": "beard", "tr": "sakal"}, {"en": "blond(e)", "tr": "sarışın", "g": [1]}, {"en": "personality trait", "tr": "kişilik özelliği", "g": [6]}, {"en": "naughty", "tr": "yaramaz; söz dinlemeyen"}, {"en": "leggings", "tr": "tayt", "g": [4]}, {"en": "cardigan", "tr": "hırka", "g": [3]}, {"en": "plump", "tr": "tombul; toplu"}, {"en": "flip-flops", "tr": "parmak arası terlik", "g": [2]}, {"en": "earring", "tr": "küpe", "g": [7]}, {"en": "brunette", "tr": "koyu saçlı (kadın)", "g": [1]}, {"en": "eyebrow", "tr": "kaş", "g": [8]}, {"en": "tights", "tr": "külotlu çorap", "g": [4]}, {"en": "moustache", "tr": "bıyık"}, {"en": "eyelash", "tr": "kirpik", "g": [8]}]]}, {"title": "Family Life", "sets": [[{"en": "doctor", "tr": "doktor", "g": [6]}, {"en": "office", "tr": "ofis", "g": [5]}, {"en": "restaurant", "tr": "restoran"}, {"en": "pilot", "tr": "pilot"}, {"en": "stadium", "tr": "stadyum"}, {"en": "hospital", "tr": "hastane", "g": [6]}, {"en": "teacher", "tr": "öğretmen"}, {"en": "driver", "tr": "şoför"}, {"en": "nurse", "tr": "hemşire", "g": [6]}, {"en": "studio", "tr": "stüdyo"}, {"en": "actor", "tr": "oyuncu", "g": [10]}, {"en": "farmer", "tr": "çiftçi"}, {"en": "kitchen", "tr": "mutfak", "g": [7]}, {"en": "sports centre", "tr": "spor merkezi", "g": [9]}, {"en": "travel", "tr": "seyahat etmek"}, {"en": "gallery", "tr": "galeri; sanat galerisi"}, {"en": "laboratory", "tr": "laboratuvar"}, {"en": "clinic", "tr": "klinik", "g": [6]}, {"en": "footballer", "tr": "futbolcu"}, {"en": "cook", "tr": "aşçı", "g": [7]}, {"en": "customer", "tr": "müşteri"}, {"en": "company", "tr": "şirket", "g": [5]}, {"en": "musician", "tr": "müzisyen", "g": [10]}], [{"en": "engineer", "tr": "mühendis", "g": [8]}, {"en": "manager", "tr": "yönetici", "g": [0]}, {"en": "shop", "tr": "dükkân; mağaza"}, {"en": "dentist", "tr": "diş hekimi", "g": [6]}, {"en": "airport", "tr": "havaalanı"}, {"en": "artist", "tr": "sanatçı", "g": [10]}, {"en": "mechanic", "tr": "tamirci; mekanikçi", "g": [8]}, {"en": "boss", "tr": "patron", "g": [0]}, {"en": "farm", "tr": "çiftlik", "g": [12]}, {"en": "treat", "tr": "tedavi etmek", "g": [6]}, {"en": "construction site", "tr": "inşaat alanı"}, {"en": "attic", "tr": "çatı katı", "g": [11]}, {"en": "caravan", "tr": "karavan", "g": [3]}, {"en": "act", "tr": "rol yapmak; oyunculuk yapmak", "g": [10]}, {"en": "factory", "tr": "fabrika"}, {"en": "tiny house", "tr": "çok küçük ev", "g": [3]}, {"en": "gym", "tr": "spor salonu", "g": [9]}, {"en": "guest room", "tr": "misafir odası"}, {"en": "storage room", "tr": "depo; kiler", "g": [11]}, {"en": "journalist", "tr": "gazeteci"}, {"en": "concert hall", "tr": "konser salonu"}, {"en": "floor", "tr": "kat"}], [{"en": "basement", "tr": "bodrum", "g": [11]}, {"en": "corridor", "tr": "koridor"}, {"en": "interview", "tr": "mülakat; görüşme"}, {"en": "stairs", "tr": "merdiven"}, {"en": "cabin", "tr": "kulübe; küçük ahşap ev", "g": [3]}, {"en": "workplace", "tr": "iş yeri", "g": [5]}, {"en": "laundry room", "tr": "çamaşır odası"}, {"en": "coach", "tr": "antrenör"}, {"en": "businessman", "tr": "iş adamı", "g": [1]}, {"en": "countryside", "tr": "kırsal bölge; köy yeri", "g": [12]}, {"en": "fix cars or machines", "tr": "araba ve makine tamir etmek", "g": [8]}, {"en": "explorer", "tr": "kaşif"}, {"en": "seaside", "tr": "deniz kenarı"}, {"en": "receptionist", "tr": "resepsiyon görevlisi"}, {"en": "skyscraper", "tr": "gökdelen"}, {"en": "newsroom", "tr": "haber merkezi"}, {"en": "businesswoman", "tr": "iş kadını", "g": [1]}, {"en": "porch", "tr": "giriş sundurması; veranda", "g": [2]}, {"en": "chemist", "tr": "eczacı", "g": [4]}, {"en": "patio", "tr": "teras; açık oturma alanı", "g": [2]}, {"en": "bungalow", "tr": "tek katlı ev", "g": [3]}, {"en": "sculptor", "tr": "heykeltıraş", "g": [10]}, {"en": "chemist’s", "tr": "eczane", "g": [4]}]]}, {"title": "Neighbourhood & City", "sets": [[{"en": "park", "tr": "park", "g": [6]}, {"en": "hotel", "tr": "otel"}, {"en": "bus", "tr": "otobüs", "g": [0]}, {"en": "train", "tr": "tren", "g": [3]}, {"en": "car", "tr": "araba", "g": [4]}, {"en": "museum", "tr": "müze"}, {"en": "restaurant", "tr": "restoran"}, {"en": "cinema", "tr": "sinema"}, {"en": "hospital", "tr": "hastane"}, {"en": "station", "tr": "istasyon; durak", "g": [3]}, {"en": "zoo", "tr": "hayvanat bahçesi"}, {"en": "swimming pool", "tr": "yüzme havuzu"}, {"en": "train station", "tr": "tren istasyonu", "g": [3]}, {"en": "city", "tr": "şehir"}, {"en": "gallery", "tr": "galeri"}, {"en": "castle", "tr": "kale"}, {"en": "café", "tr": "kafe"}, {"en": "sports stadium", "tr": "spor stadyumu"}, {"en": "garage", "tr": "garaj", "g": [4]}, {"en": "motorbike", "tr": "motosiklet"}], [{"en": "helicopter", "tr": "helikopter"}, {"en": "ambulance", "tr": "ambulans"}, {"en": "post office", "tr": "postane"}, {"en": "ship", "tr": "gemi"}, {"en": "shop", "tr": "mağaza; dükkân", "g": [1]}, {"en": "car park", "tr": "otopark", "g": [4]}, {"en": "library", "tr": "kütüphane"}, {"en": "airport", "tr": "havaalanı", "g": [9]}, {"en": "playground", "tr": "oyun alanı", "g": [6]}, {"en": "van", "tr": "kamyonet; minibüs", "g": [2]}, {"en": "bridge", "tr": "köprü"}, {"en": "police station", "tr": "polis karakolu"}, {"en": "fire station", "tr": "itfaiye istasyonu"}, {"en": "department store", "tr": "büyük mağaza (reyonlu)", "g": [1]}, {"en": "boat", "tr": "tekne"}, {"en": "aeroplane", "tr": "uçak", "g": [9]}, {"en": "journey", "tr": "yolculuk", "g": [5]}, {"en": "transportation", "tr": "ulaşım", "g": [5]}, {"en": "theatre", "tr": "tiyatro"}, {"en": "bus station", "tr": "otobüs terminali", "g": [0]}, {"en": "railway", "tr": "demiryolu", "g": [3]}], [{"en": "concert hall", "tr": "konser salonu", "g": [7]}, {"en": "destination", "tr": "varış noktası", "g": [5]}, {"en": "railway station", "tr": "tren istasyonu", "g": [3]}, {"en": "bakery", "tr": "fırın"}, {"en": "hall", "tr": "salon", "g": [7]}, {"en": "platform", "tr": "peron", "g": [3]}, {"en": "seat", "tr": "koltuk; oturacak yer"}, {"en": "shopping mall", "tr": "alışveriş merkezi", "g": [1]}, {"en": "service", "tr": "otoyol dinlenme tesisi", "g": [8]}, {"en": "coach", "tr": "şehirlerarası otobüs", "g": [0]}, {"en": "neighbourhood", "tr": "mahalle; semt"}, {"en": "recreational place", "tr": "dinlenme ve eğlence yeri", "g": [6]}, {"en": "attractions", "tr": "gezilecek yerler", "g": [6]}, {"en": "tool", "tr": "alet"}, {"en": "underground", "tr": "metro", "g": [3]}, {"en": "bookshop", "tr": "kitapçı", "g": [1]}, {"en": "amusement park", "tr": "lunapark", "g": [6]}, {"en": "petrol station", "tr": "benzin istasyonu", "g": [8]}, {"en": "motorway", "tr": "otoyol", "g": [8]}, {"en": "lorry", "tr": "kamyon", "g": [2]}]]}, {"title": "Life in the World", "sets": [[{"en": "China", "tr": "Çin"}, {"en": "France", "tr": "Fransa"}, {"en": "Russia", "tr": "Rusya"}, {"en": "Japan", "tr": "Japonya"}, {"en": "world", "tr": "dünya", "g": [11]}, {"en": "Italy", "tr": "İtalya"}, {"en": "Spain", "tr": "İspanya"}, {"en": "Brazil", "tr": "Brezilya"}, {"en": "American", "tr": "Amerikalı", "g": [8]}, {"en": "Turkish", "tr": "Türk; Türkçe", "g": [9]}, {"en": "Australia", "tr": "Avustralya"}, {"en": "Canada", "tr": "Kanada"}, {"en": "Australian", "tr": "Avustralyalı"}, {"en": "Africa", "tr": "Afrika"}, {"en": "Germany", "tr": "Almanya"}, {"en": "serve", "tr": "servis etmek; sunmak"}, {"en": "taste", "tr": "tat"}, {"en": "Ireland", "tr": "İrlanda"}], [{"en": "Asia", "tr": "Asya"}, {"en": "meat", "tr": "et"}, {"en": "cream", "tr": "krema"}, {"en": "New Zealand", "tr": "Yeni Zelanda"}, {"en": "country", "tr": "ülke", "g": [11]}, {"en": "event", "tr": "etkinlik", "g": [7]}, {"en": "England", "tr": "İngiltere"}, {"en": "cup", "tr": "fincan; kupa", "g": [5]}, {"en": "French", "tr": "Fransız; Fransızca"}, {"en": "Europe", "tr": "Avrupa"}, {"en": "join", "tr": "katılmak"}, {"en": "steak", "tr": "biftek; steak"}, {"en": "knife", "tr": "bıçak"}, {"en": "sweet", "tr": "tatlı (tadı); şekerli", "g": [3]}, {"en": "South America", "tr": "Güney Amerika"}, {"en": "North America", "tr": "Kuzey Amerika", "g": [8]}, {"en": "cherry", "tr": "kiraz"}, {"en": "glass", "tr": "bardak; cam", "g": [5]}, {"en": "omelette", "tr": "omlet"}], [{"en": "healthy", "tr": "sağlıklı"}, {"en": "The USA", "tr": "Amerika Birleşik Devletleri", "g": [8]}, {"en": "mix", "tr": "karıştırmak"}, {"en": "grape", "tr": "üzüm"}, {"en": "stand", "tr": "stant; tezgâh"}, {"en": "bowl", "tr": "kâse", "g": [5]}, {"en": "mushroom", "tr": "mantar"}, {"en": "barbecue", "tr": "mangal; barbekü", "g": [2]}, {"en": "onion", "tr": "soğan"}, {"en": "Kazakhstan", "tr": "Kazakistan"}, {"en": "plate", "tr": "tabak", "g": [4]}, {"en": "Antarctica", "tr": "Antarktika"}, {"en": "tradition", "tr": "gelenek"}, {"en": "celebrate", "tr": "kutlamak", "g": [7]}, {"en": "Azerbaijan", "tr": "Azerbaycan"}, {"en": "meal", "tr": "öğün", "g": [4]}, {"en": "pear", "tr": "armut"}, {"en": "delicious", "tr": "lezzetli"}], [{"en": "sauce", "tr": "sos"}, {"en": "chef", "tr": "şef aşçı", "g": [6]}, {"en": "Uzbekistan", "tr": "Özbekistan"}, {"en": "dish", "tr": "yemek (tabak yemek)", "g": [4]}, {"en": "crowd", "tr": "kalabalık"}, {"en": "jam", "tr": "reçel", "g": [3]}, {"en": "Kyrgyzstan", "tr": "Kırgızistan"}, {"en": "Portugal", "tr": "Portekiz"}, {"en": "continent", "tr": "kıta", "g": [11]}, {"en": "fried", "tr": "kızartılmış", "g": [1]}, {"en": "toast", "tr": "kızarmış ekmek", "g": [10]}, {"en": "garlic", "tr": "sarımsak"}, {"en": "bake", "tr": "fırında pişirmek", "g": [0, 10]}, {"en": "snack", "tr": "atıştırmalık"}, {"en": "fry", "tr": "kızartmak", "g": [1]}, {"en": "grill", "tr": "ızgara; ızgarada pişirmek", "g": [2]}, {"en": "boil", "tr": "kaynatmak"}, {"en": "dessert", "tr": "tatlı (yemek sonrası)", "g": [3]}, {"en": "food festivals", "tr": "yemek festivalleri", "g": [7]}], [{"en": "spicy", "tr": "acılı; baharatlı"}, {"en": "salty", "tr": "tuzlu"}, {"en": "roasted", "tr": "fırında kızartılmış", "g": [0]}, {"en": "nationality", "tr": "milliyet; uyruk", "g": [11]}, {"en": "grilled", "tr": "ızgara yapılmış", "g": [2]}, {"en": "wash up", "tr": "bulaşık yıkamak"}, {"en": "Kazakh", "tr": "Kazak; Kazakça"}, {"en": "Uzbek", "tr": "Özbek"}, {"en": "Kyrgyz", "tr": "Kırgız; Kırgızca"}, {"en": "Azerbaijani", "tr": "Azerbaycanlı; Azeri"}, {"en": "Turkmen", "tr": "Türkmen"}, {"en": "lobster", "tr": "ıstakoz"}, {"en": "Turkish Republic of Northern Cyprus", "tr": "Kuzey Kıbrıs Türk Cumhuriyeti", "g": [9]}, {"en": "Turkish Cypriot", "tr": "Kıbrıs Türkü", "g": [9]}, {"en": "marinate", "tr": "marine etmek"}, {"en": "cooker", "tr": "ocak; fırınlı ocak", "g": [0]}, {"en": "cuisines", "tr": "mutfaklar (yemek kültürleri)", "g": [6]}, {"en": "dumpling", "tr": "mantı; içi dolu hamur"}]]}, {"title": "Life in Nature", "sets": [[{"en": "sea", "tr": "deniz", "g": [6]}, {"en": "high", "tr": "yüksek", "g": [5]}, {"en": "sky", "tr": "gökyüzü"}, {"en": "bear", "tr": "ayı"}, {"en": "camping", "tr": "kamp yapma; kampçılık"}, {"en": "spider", "tr": "örümcek"}, {"en": "frog", "tr": "kurbağa"}, {"en": "plant", "tr": "bitki"}, {"en": "tiger", "tr": "kaplan"}, {"en": "snake", "tr": "yılan"}, {"en": "duck", "tr": "ördek"}, {"en": "whale", "tr": "balina"}, {"en": "dolphin", "tr": "yunus"}, {"en": "camel", "tr": "deve"}, {"en": "cycling", "tr": "bisiklete binme", "g": [4]}, {"en": "bee", "tr": "arı"}, {"en": "elephant", "tr": "fil"}, {"en": "pick", "tr": "koparmak (meyve, çiçek)", "g": [1]}, {"en": "monkey", "tr": "maymun"}, {"en": "rabbit", "tr": "tavşan"}, {"en": "river", "tr": "nehir", "g": [6]}, {"en": "ice", "tr": "buz"}], [{"en": "parrot", "tr": "papağan"}, {"en": "nature", "tr": "doğa"}, {"en": "butterfly", "tr": "kelebek"}, {"en": "protect", "tr": "korumak", "g": [0]}, {"en": "wind", "tr": "rüzgâr"}, {"en": "lake", "tr": "göl", "g": [6]}, {"en": "wild", "tr": "vahşi; yabani"}, {"en": "enjoy the view", "tr": "manzaranın keyfini çıkarmak"}, {"en": "dry", "tr": "kuru", "g": [7]}, {"en": "exist", "tr": "var olmak", "g": [8]}, {"en": "mountain", "tr": "dağ", "g": [5]}, {"en": "ocean", "tr": "okyanus", "g": [6]}, {"en": "feed", "tr": "beslemek"}, {"en": "storm", "tr": "fırtına"}, {"en": "save", "tr": "kurtarmak", "g": [0]}, {"en": "temperature", "tr": "sıcaklık"}, {"en": "climbing", "tr": "tırmanış", "g": [4]}, {"en": "wet", "tr": "ıslak", "g": [3]}, {"en": "destroy", "tr": "yok etmek", "g": [2]}, {"en": "land", "tr": "kara; arazi"}, {"en": "hunt", "tr": "avlanmak"}, {"en": "wide", "tr": "geniş"}], [{"en": "sand", "tr": "kum", "g": [7]}, {"en": "desert", "tr": "çöl", "g": [7]}, {"en": "collect", "tr": "toplamak", "g": [1]}, {"en": "species", "tr": "tür", "g": [8]}, {"en": "swing", "tr": "sallanmak"}, {"en": "mud", "tr": "çamur"}, {"en": "kill", "tr": "öldürmek", "g": [2]}, {"en": "the Arctic", "tr": "Kuzey Kutbu bölgesi"}, {"en": "cut down", "tr": "(ağaç) kesmek", "g": [2]}, {"en": "reach", "tr": "ulaşmak"}, {"en": "have a barbecue", "tr": "mangal yapmak"}, {"en": "hiking", "tr": "doğa yürüyüşü", "g": [4]}, {"en": "insect", "tr": "böcek"}, {"en": "rainforest", "tr": "yağmur ormanı"}, {"en": "jogging", "tr": "hafif tempolu koşu", "g": [4]}, {"en": "endangered", "tr": "nesli tükenmekte olan"}, {"en": "recycle", "tr": "geri dönüştürmek"}, {"en": "savanna", "tr": "savana"}, {"en": "habitat", "tr": "yaşam alanı", "g": [8]}, {"en": "sunbathing", "tr": "güneşlenme"}, {"en": "wetland", "tr": "sulak alan", "g": [3]}, {"en": "chirp", "tr": "cıvıldamak"}]]}, {"title": "Life in the Universe", "sets": [[{"en": "the Sun", "tr": "Güneş", "g": [3]}, {"en": "the Moon", "tr": "Ay", "g": [0]}, {"en": "Earth", "tr": "Dünya", "g": [4]}, {"en": "stone", "tr": "taş"}, {"en": "galaxy", "tr": "galaksi", "g": [9]}, {"en": "moon", "tr": "uydu", "g": [0]}, {"en": "planet", "tr": "gezegen", "g": [4, 8]}, {"en": "change", "tr": "değişmek; değiştirmek", "g": [5]}, {"en": "plant", "tr": "bitki"}, {"en": "light", "tr": "ışık"}, {"en": "space", "tr": "uzay"}, {"en": "smoke", "tr": "duman"}, {"en": "size", "tr": "boyut", "g": [7]}, {"en": "asteroid", "tr": "asteroit"}, {"en": "deep", "tr": "derin"}, {"en": "atmosphere", "tr": "atmosfer"}, {"en": "protect", "tr": "korumak", "g": [2]}, {"en": "environment", "tr": "çevre"}], [{"en": "heat", "tr": "ısı", "g": [6]}, {"en": "surface", "tr": "yüzey"}, {"en": "ring", "tr": "halka"}, {"en": "rise", "tr": "yükselmek; artmak", "g": [11]}, {"en": "prevent", "tr": "önlemek", "g": [2]}, {"en": "exist", "tr": "var olmak"}, {"en": "reduce", "tr": "azaltmak", "g": [10]}, {"en": "solid", "tr": "katı"}, {"en": "valley", "tr": "vadi"}, {"en": "climate", "tr": "iklim", "g": [5]}, {"en": "save", "tr": "tasarruf etmek; kurtarmak", "g": [2]}, {"en": "temperature", "tr": "sıcaklık", "g": [6]}, {"en": "dust", "tr": "toz"}, {"en": "disaster", "tr": "felaket"}, {"en": "discover", "tr": "keşfetmek", "g": [1]}, {"en": "liquid", "tr": "sıvı"}, {"en": "solar system", "tr": "Güneş Sistemi", "g": [3]}, {"en": "connect", "tr": "bağlamak"}], [{"en": "explore", "tr": "keşfe çıkmak; araştırmak", "g": [1]}, {"en": "population", "tr": "nüfus"}, {"en": "movement", "tr": "hareket"}, {"en": "enormous", "tr": "çok büyük; devasa", "g": [7]}, {"en": "pollution", "tr": "kirlilik", "g": [10]}, {"en": "provide", "tr": "sağlamak", "g": [11]}, {"en": "source", "tr": "kaynak"}, {"en": "freeze", "tr": "donmak; dondurmak"}, {"en": "orbit", "tr": "yörünge"}, {"en": "the Milky Way", "tr": "Samanyolu", "g": [9]}, {"en": "recent", "tr": "yakın zamandaki; son"}, {"en": "recycle", "tr": "geri dönüştürmek", "g": [10]}, {"en": "comet", "tr": "kuyruklu yıldız"}, {"en": "diameter", "tr": "çap", "g": [7]}, {"en": "glacier", "tr": "buzul"}, {"en": "dwarf", "tr": "cüce (gezegen)", "g": [8]}, {"en": "tilt", "tr": "eğilmek; eğim"}, {"en": "habitable", "tr": "yaşanabilir"}]]}];
+
+/* ---------- storage (safe) ---------- */
+const KEY = 'g5vocab_best_';
+function getBest(t, s){ try{ const v = localStorage.getItem(KEY+t+'_'+s); return v===null? null : parseInt(v,10); }catch(e){ return null; } }
+function setBest(t, s, v){ try{ const b = getBest(t,s); if(b===null || v>b) localStorage.setItem(KEY+t+'_'+s, v); }catch(e){} }
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LEVELS = ['Easy','Medium','Hard'];
+function levelOf(i, n){ if(n<=1) return 1; if(i===0) return 0; if(i===n-1) return 2; return 1; }
+const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';
+
+/* ---------- state ---------- */
+let T = 0, S = 0;          // current theme / set index
+let round = null;          // { review:bool, items:[{w, opts, pick}], idx }
+
+/* ---------- screens ---------- */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  if(id!=='result') stopConfetti();
+}
+
+/* ---------- theme list ---------- */
+function renderThemes(){
+  const box = $('theme-list'); box.innerHTML = '';
+  THEMES.forEach((th, ti) => {
+    const n = th.sets.reduce((a,s)=>a+s.length,0);
+    const dots = th.sets.map((s,si) => { const b = getBest(ti,si); return `<i class="${b===null?'':(b===s.length?'done':'played')}"></i>`; }).join('');
+    const el = document.createElement('button');
+    el.className = 'row';
+    el.innerHTML = `<span class="num">${ti+1}</span>
+      <span class="main"><div class="title">${esc(th.title)}</div>
+      <div class="sub">${th.sets.length} sets · ${n} words</div><div class="dots">${dots}</div></span>
+      <span class="arrow">&#10230;</span>`;
+    el.onclick = () => { T = ti; renderSets(); show('sets'); };
+    box.appendChild(el);
+  });
+}
+
+/* ---------- set list ---------- */
+function renderSets(){
+  const th = THEMES[T];
+  $('sets-eyebrow').textContent = `Theme ${T+1}`;
+  $('sets-title').textContent = th.title;
+  const box = $('set-list'); box.innerHTML = '';
+  th.sets.forEach((set, si) => {
+    const lv = levelOf(si, th.sets.length);
+    const bars = [0,1,2].map(k => `<b class="${k<=lv?'on':''}"></b>`).join('');
+    const b = getBest(T, si);
+    const badge = b===null ? '<span class="arrow">&#10230;</span>'
+      : `<span class="badge ${b===set.length?'':'part'}">Best ${b}/${set.length}</span>`;
+    const el = document.createElement('button');
+    el.className = 'row';
+    el.innerHTML = `<span class="num">${si+1}</span>
+      <span class="main"><div class="title">Set ${si+1}</div>
+      <div class="sub"><span class="lvl">${bars}</span>${LEVELS[lv]} · ${set.length} words</div></span>${badge}`;
+    el.onclick = () => startRound(si, false);
+    box.appendChild(el);
+  });
+}
+
+/* ---------- options ---------- */
+function clash(a, b){
+  if(a===b || a.tr===b.tr) return true;
+  return !!(a.g && b.g && a.g.some(x => b.g.includes(x)));
+}
+function buildOptions(w){
+  const set = THEMES[T].sets[S];
+  const all = THEMES[T].sets.flat();
+  const picked = [], seen = new Set([w.tr]);
+  const take = pool => { for(const c of shuffle(pool)){ if(picked.length>=3) break; if(clash(w,c) || seen.has(c.tr)) continue; seen.add(c.tr); picked.push(c.tr); } };
+  take(set);                 // same set first: words studied together
+  if(picked.length<3) take(all);
+  return shuffle([w.tr, ...picked]);
+}
+
+/* ---------- rounds ---------- */
+function startRound(si, review, words){
+  S = si;
+  const list = review ? words : THEMES[T].sets[S];
+  round = { review, idx:0, items: shuffle(list).map(w => ({ w, opts: buildOptions(w), pick: null })) };
+  initAudio(); loadVoices();
+  $('quiz').classList.toggle('review', review);
+  $('q-where').textContent = `Theme ${T+1} · Set ${S+1}`;
+  show('quiz');
+  renderQ();
+}
+function scoreOf(){ return round.items.filter(it => it.pick===it.w.tr).length; }
+
+function renderQ(){
+  const it = round.items[round.idx], n = round.items.length;
+  $('word').textContent = it.w.en;
+  $('q-pos').textContent = `${round.idx+1} / ${n}`;
+  $('q-score').textContent = scoreOf();
+  const answered = round.items.filter(x => x.pick!==null).length;
+  $('q-bar').style.width = (answered/n*100) + '%';
+
+  const box = $('options'); box.innerHTML = '';
+  it.opts.forEach((o, k) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<span class="key">${'ABCD'[k]}</span><span>${esc(o)}</span><span class="mark"></span>`;
+    b.onclick = () => answer(k);
+    box.appendChild(b);
+  });
+  paintAnswer(false);
+  $('prev').disabled = round.idx===0;
+  updateNext();
+}
+function paintAnswer(animate){
+  const it = round.items[round.idx];
+  const btns = $('options').children;
+  if(it.pick===null) return;
+  it.opts.forEach((o, k) => {
+    const b = btns[k]; b.disabled = true;
+    if(o===it.w.tr){ b.classList.add('correct'); if(animate && it.pick===o) b.classList.add('pop'); }
+    else if(o===it.pick){ b.classList.add('wrong'); if(animate) b.classList.add('shake'); }
+    else b.classList.add('dim');
+  });
+}
+function updateNext(){
+  const it = round.items[round.idx], last = round.idx===round.items.length-1;
+  $('next').disabled = it.pick===null;
+  $('next-lbl').textContent = last ? 'Finish' : 'Next';
+}
+function answer(k){
+  const it = round.items[round.idx];
+  if(it.pick!==null) return;
+  it.pick = it.opts[k];
+  const right = it.pick===it.w.tr;
+  playTone(right ? 'correct' : 'wrong');
+  paintAnswer(true);
+  $('q-score').textContent = scoreOf();
+  $('q-bar').style.width = (round.items.filter(x => x.pick!==null).length/round.items.length*100) + '%';
+  updateNext();
+  $('next').focus({preventScroll:true});
+}
+function go(d){
+  const it = round.items[round.idx];
+  if(d>0 && it.pick===null) return;
+  if(d>0 && round.idx===round.items.length-1){ finish(); return; }
+  const j = round.idx + d;
+  if(j<0 || j>=round.items.length) return;
+  round.idx = j; renderQ();
+}
+
+/* ---------- results ---------- */
+function finish(){
+  const n = round.items.length, sc = scoreOf();
+  const wrong = round.items.filter(it => it.pick!==it.w.tr).map(it => it.w);
+  const setLen = THEMES[T].sets[S].length;
+  const hasNext = S < THEMES[T].sets.length-1;
+  $('r-where').textContent = `Theme ${T+1} · Set ${S+1}` + (round.review ? ' · Review' : '');
+
+  if(!round.review){
+    setBest(T, S, sc);
+    $('r-score').textContent = `You scored ${sc} out of ${n}`;
+    $('r-note').textContent = `Best: ${getBest(T,S)} / ${setLen}`;
+  } else {
+    $('r-score').textContent = `${sc} of ${n} mistakes fixed`;
+    $('r-note').textContent = wrong.length ? `${wrong.length} still to learn` : 'Every mistake is fixed.';
+  }
+
+  const perfect = wrong.length===0;
+  $('r-fin').textContent = perfect ? (round.review ? 'Well done.' : 'Perfect.') : 'Fin.';
+
+  const items = $('r-items'); items.innerHTML = '';
+  wrong.forEach(w => {
+    const d = document.createElement('div'); d.className = 'm-item';
+    d.innerHTML = `<span class="en">${esc(w.en)}</span><button class="audio" aria-label="Listen">${SPEAKER}</button><span class="tr">${esc(w.tr)}</span>`;
+    d.querySelector('.audio').onclick = () => speak(w.en);
+    items.appendChild(d);
+  });
+  $('r-mistakes').style.display = perfect ? 'none' : '';
+  $('r-spacer').style.display = perfect ? '' : 'none';
+  $('r-clear').style.display = perfect ? '' : 'none';
+  $('r-clear').textContent = perfect ? (hasNext ? 'Great work! You are ready for the next set.' : 'Great work! You finished the last set of this theme.') : '';
+
+  const P = $('r-primary');
+  if(!perfect){
+    P.textContent = `Practice mistakes (${wrong.length})`; P.className = 'btn';
+    P.onclick = () => startRound(S, true, wrong);
+  } else if(hasNext){
+    P.textContent = `Go to Set ${S+2}`; P.className = 'btn ok';
+    P.onclick = () => startRound(S+1, false);
+  } else {
+    P.textContent = 'Choose another theme'; P.className = 'btn ok';
+    P.onclick = () => { renderThemes(); show('themes'); };
+  }
+  $('r-retry').textContent = round.review ? 'Retry whole set' : 'Retry set';
+  $('r-next').style.display = (hasNext && !(perfect)) ? '' : 'none';
+  $('r-next').textContent = `Set ${S+2} →`;
+
+  show('result');
+  if(perfect){ playTone('win'); startConfetti(); }
+}
+
+/* ---------- audio: soft tones ---------- */
+let actx = null, silentEl = null;
+/* iPhone: play sound even when the ring/silent switch is on.
+   Safari 16.4+ supports navigator.audioSession; older iOS gets a looping silent <audio>,
+   which moves the page into the "playback" audio category. */
+function unlockSilentMode(){
+  try{
+    if(navigator.audioSession){ navigator.audioSession.type = 'playback'; return; }
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+    if(!iOS || silentEl) return;
+    const n = 4000, buf = new ArrayBuffer(44+n), v = new DataView(buf);
+    const w = (o,s) => { for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
+    w(0,'RIFF'); v.setUint32(4,36+n,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
+    v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,8000,true); v.setUint32(28,8000,true);
+    v.setUint16(32,1,true); v.setUint16(34,8,true); w(36,'data'); v.setUint32(40,n,true);
+    for(let i=0;i<n;i++) v.setUint8(44+i,128);
+    silentEl = document.createElement('audio');
+    silentEl.src = URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+    silentEl.loop = true; silentEl.setAttribute('playsinline',''); silentEl.setAttribute('x-webkit-airplay','deny');
+    const p = silentEl.play(); if(p && p.catch) p.catch(()=>{ silentEl = null; });
+  }catch(e){}
+}
+function initAudio(){
+  unlockSilentMode();
+  try{
+    if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+  }catch(e){}
+}
+function playTone(type){
+  if(!actx) return;
+  const now = actx.currentTime;
+  const bell = (f, t, dur, vol) => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+.02); g.gain.exponentialRampToValueAtTime(.001, t+dur);
+    o.start(t); o.stop(t+dur);
+  };
+  const wood = t => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.value = 300; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t+.01); g.gain.exponentialRampToValueAtTime(.001, t+.1);
+    o.start(t); o.stop(t+.1);
+  };
+  if(type==='correct'){ [523.25,659.25,783.99].forEach(f => bell(f, now, 1.4, .1)); bell(987.77, now, 1.4, .08); }
+  else if(type==='wrong'){ wood(now); }
+  else if(type==='win'){ const s=.15; bell(523.25,now,2,.1); bell(659.25,now+s,2,.1); bell(783.99,now+s*2,2,.1); bell(1046.5,now+s*3,3,.2); }
+}
+
+/* ---------- speech ---------- */
+const hasSpeech = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+if(!hasSpeech) document.body.classList.add('no-speech');
+let voice = null;
+function loadVoices(){
+  if(!hasSpeech) return;
+  const v = speechSynthesis.getVoices();
+  voice = v.find(x => x.name==='Google US English') || v.find(x => x.name==='Samantha')
+       || v.find(x => x.lang==='en-US') || v.find(x => x.lang && x.lang.startsWith('en')) || null;
+}
+if(hasSpeech){ loadVoices(); if(speechSynthesis.onvoiceschanged!==undefined) speechSynthesis.onvoiceschanged = loadVoices; }
+function speak(text){
+  if(!hasSpeech) return;
+  unlockSilentMode();
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/\(.*?\)/g,'').replace('/', ' or '));
+  if(voice) u.voice = voice;
+  u.lang = 'en-US'; u.rate = .9; u.pitch = 1;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- confetti ---------- */
+let confOn = false;
+function startConfetti(){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  confOn = true;
+  const c = $('confetti'), ctx = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const cols = ['#C9A24B','#944E38','#5F7F1F','#E8DCD0'];
+  const ps = Array.from({length:150}, () => ({x:Math.random()*c.width, y:Math.random()*c.height-c.height,
+    col:cols[Math.random()*cols.length|0], s:Math.random()*6+4, vy:Math.random()*3+2, vx:Math.random()*2-1}));
+  let frames = 0;
+  (function draw(){
+    if(!confOn || frames++ > 420){ ctx.clearRect(0,0,c.width,c.height); confOn=false; return; }
+    ctx.clearRect(0,0,c.width,c.height);
+    ps.forEach(p => { ctx.fillStyle=p.col; ctx.fillRect(p.x,p.y,p.s,p.s); p.y+=p.vy; p.x+=p.vx; if(p.y>c.height && frames<300) p.y=-10; });
+    requestAnimationFrame(draw);
+  })();
+}
+function stopConfetti(){ confOn = false; const c=$('confetti'); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+
+/* ---------- wiring ---------- */
+$('start').onclick = () => { initAudio(); loadVoices(); renderThemes(); show('themes'); };
+$('sets-back').onclick = () => { renderThemes(); show('themes'); };
+$('exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); renderSets(); show('sets'); };
+$('prev').onclick = () => go(-1);
+$('next').onclick = () => go(1);
+$('q-audio').onclick = () => speak(round.items[round.idx].w.en);
+$('r-retry').onclick = () => startRound(S, false);
+$('r-next').onclick = () => startRound(S+1, false);
+$('r-sets').onclick = () => { renderSets(); show('sets'); };
+
+/* keyboard (smartboard keyboards / laptops): A–D or 1–4 answer, ←/→ move, Enter next, Space listen */
+document.addEventListener('keydown', e => {
+  if(!$('quiz').classList.contains('active')) return;
+  const k = e.key.toLowerCase();
+  const map = {a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3};
+  if(k in map){ answer(map[k]); e.preventDefault(); }
+  else if(k==='arrowright' || k==='enter'){ go(1); e.preventDefault(); }
+  else if(k==='arrowleft'){ go(-1); e.preventDefault(); }
+  else if(k===' '){ speak(round.items[round.idx].w.en); e.preventDefault(); }
+});
+</script>
+</body>
+</html>
