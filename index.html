@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Vocabulary Master</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#944E38">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vocabulary">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
@@ -32,7 +40,7 @@
 html,body{height:100%}
 body{
   font-family:'Lato',system-ui,sans-serif;background:var(--bg);color:var(--ink);
-  display:flex;justify-content:center;align-items:center;min-height:100vh;padding:12px;overflow-x:hidden;
+  display:flex;justify-content:center;align-items:center;min-height:100vh;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow-x:hidden;
 }
 button{font:inherit;color:inherit}
 .app{
@@ -206,6 +214,19 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
 .row.mine.empty{cursor:default;opacity:.7}
 .row.mine.empty:hover{background:transparent}
 @media (min-width:900px) and (min-height:620px){ .card .tr{font-size:1.9rem} .intro .big{font-size:3.4rem} }
+/* install hint */
+.install{display:none;margin-top:18px;font-size:.82rem;color:var(--muted);line-height:1.5;max-width:300px;text-align:center}
+.install.show{display:block}
+.install b{color:var(--ink)}
+.install .x{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:.78rem;margin-top:4px}
+.install .btn{margin-top:8px;padding:12px 22px;font-size:.78rem}
+/* sound toggle */
+.mid{display:flex;align-items:center;gap:2px}
+.snd{background:none;border:none;cursor:pointer;color:var(--muted);padding:8px;border-radius:50%;display:inline-flex;transition:color .2s,background .2s}
+.snd:hover{color:var(--accent);background:var(--accent-soft)}
+.snd svg{width:20px;height:20px}
+.snd.off{color:var(--bad)}
+@media (min-width:900px) and (min-height:620px){ .snd svg{width:26px;height:26px} }
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:999}
 
 /* ---------- smartboard / large screens ---------- */
@@ -251,6 +272,7 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
       <div class="muted" style="font-size:.86rem;margin-bottom:4px">Choose your grade</div>
       <button class="btn" data-grade="5">Grade 5</button>
       <button class="btn" data-grade="8">Grade 8</button>
+      <div class="install" id="install"></div>
     </div>
   </section>
 
@@ -331,7 +353,7 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
       <button class="navbtn prev" id="prev" aria-label="Previous">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Previous</span>
       </button>
-      <button class="link" id="exit">Exit</button>
+      <div class="mid"><button class="snd" id="snd" aria-label="Sound on" title="Sound on/off"></button><button class="link" id="exit">Exit</button></div>
       <button class="navbtn next primary" id="next" aria-label="Next">
         <span class="lbl" id="next-lbl">Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
@@ -720,8 +742,18 @@ function note(freq, t, dur, vol, cutoff){
     o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + .05);
   });
 }
+/* sound effects on/off — remembered on this phone */
+let soundOn = lsGet('vocab_sound', true);
+const ICON_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l6 6M22 9l-6 6"/></svg>';
+function renderSound(){
+  const b = $('snd'); b.innerHTML = soundOn ? ICON_ON : ICON_OFF;
+  b.classList.toggle('off', !soundOn);
+  b.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
+}
+function toggleSound(){ soundOn = !soundOn; lsSet('vocab_sound', soundOn); renderSound(); if(soundOn){ initAudio(); playTone('correct'); } }
 function playTone(type){
-  if(!actx) return;
+  if(!actx || !soundOn) return;
   const t = actx.currentTime + .01;
   if(type==='correct'){                     // gentle rising two-note chime
     note(783.99, t, .55, .07); note(1046.5, t + .09, .8, .065);
@@ -794,10 +826,34 @@ $('l-next').onclick = () => learnGo(1);
 $('l-exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); openIntro(S); };
 
 $('prev').onclick = () => go(-1);
+$('snd').onclick = toggleSound; renderSound();
 $('next').onclick = () => go(1);
 $('q-audio').onclick = () => speak(round.items[round.idx].w.en);
 $('r-retry').onclick = () => startRound(S, 'quiz');
 $('r-next').onclick = () => openIntro(S+1);
+
+/* ---------- app install (home screen) ---------- */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+(function installHint(){
+  const box = $('install');
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if(standalone || lsGet('vocab_install_hidden', false)) return;
+  const hide = () => { box.classList.remove('show'); lsSet('vocab_install_hidden', true); };
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  if(iOS){
+    box.innerHTML = `Add this app to your Home Screen: tap <b>Share</b> <span aria-hidden="true">&#x2B06;&#xFE0E;</span> and then <b>Add to Home Screen</b>.<br><button class="x">Hide</button>`;
+    box.classList.add('show'); box.querySelector('.x').onclick = hide;
+  }
+  window.addEventListener('beforeinstallprompt', e => {       // Android / Chrome
+    e.preventDefault();
+    box.innerHTML = `<button class="btn">Install the app</button><br><button class="x">Not now</button>`;
+    box.classList.add('show');
+    box.querySelector('.btn').onclick = async () => { e.prompt(); try{ await e.userChoice; }catch(_){} box.classList.remove('show'); };
+    box.querySelector('.x').onclick = hide;
+  });
+})();
 
 /* keyboard (smartboard keyboards / laptops): A–D or 1–4 answer, ←/→ move, Enter next, Space listen */
 document.addEventListener('keydown', e => {
@@ -816,6 +872,7 @@ document.addEventListener('keydown', e => {
   else if(k==='arrowright' || k==='enter'){ go(1); e.preventDefault(); }
   else if(k==='arrowleft'){ go(-1); e.preventDefault(); }
   else if(k===' '){ speak(round.items[round.idx].w.en); e.preventDefault(); }
+  else if(k==='m'){ toggleSound(); }
 });
 </script>
 </body>
