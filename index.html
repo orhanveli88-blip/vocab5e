@@ -183,6 +183,29 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
 .actions .row2{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .clear{margin:22px auto 0;max-width:320px;font-size:.95rem;color:var(--muted);line-height:1.5}
 
+/* set intro */
+.intro{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px}
+.intro .big{font-family:'Playfair Display',serif;font-size:2.6rem;color:var(--accent);line-height:1.1}
+.intro .btns{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin-top:26px}
+.intro .preview{font-size:.9rem;color:var(--muted);max-width:420px;line-height:1.6;margin-top:14px}
+/* learn cards */
+.card{
+  flex:1;min-height:0;margin:14px 0;border:1px solid var(--line);border-radius:12px;background:var(--soft);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;cursor:pointer;
+  text-align:center;user-select:none;transition:background .2s,border-color .2s
+}
+.card:hover{border-color:#D9C7BC}
+.card .en{font-family:'Playfair Display',serif;font-size:var(--fs-word);line-height:1.15;overflow-wrap:anywhere}
+.card .tr{font-size:1.35rem;color:var(--accent);font-weight:700;min-height:1.6em}
+.card .hint{font-size:.8rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.card.flipped{background:#fff;border-color:var(--accent)}
+.card.flipped .hint{visibility:hidden}
+/* my words row */
+.row.mine .num{font-size:1.2rem}
+.row.mine .title{color:var(--accent)}
+.row.mine.empty{cursor:default;opacity:.7}
+.row.mine.empty:hover{background:transparent}
+@media (min-width:900px) and (min-height:620px){ .card .tr{font-size:1.9rem} .intro .big{font-size:3.4rem} }
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:999}
 
 /* ---------- smartboard / large screens ---------- */
@@ -247,6 +270,47 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
     <div class="list" id="set-list"></div>
   </section>
 
+  <!-- SET INTRO -->
+  <section id="intro" class="screen">
+    <div class="topbar"><button class="link back" id="intro-back">&larr; All sets</button><span class="eyebrow" id="intro-eyebrow">Theme 1</span></div>
+    <div class="intro">
+      <div class="eyebrow" id="intro-level">Easy · 20 words</div>
+      <div class="big" id="intro-title">Set 1</div>
+      <div class="muted" id="intro-best" style="font-size:.9rem"></div>
+      <div class="preview" id="intro-preview"></div>
+      <div class="btns">
+        <button class="btn ghost" id="intro-learn">Learn the words</button>
+        <button class="btn" id="intro-quiz">Start the quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARN (flashcards) -->
+  <section id="learn" class="screen">
+    <div class="qhead">
+      <div class="where"><span id="l-where">Theme 1 · Set 1</span><span class="mode-tag" style="display:inline-block">Learn</span></div>
+      <div class="count"><span id="l-pos">1 / 20</span></div>
+    </div>
+    <div class="progress"><div id="l-bar"></div></div>
+    <div class="card" id="card" role="button" aria-label="Show meaning">
+      <div class="en" id="l-en">word</div>
+      <button class="audio" id="l-audio" aria-label="Listen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      </button>
+      <div class="tr" id="l-tr"></div>
+      <div class="hint">Tap to see the meaning</div>
+    </div>
+    <div class="navbar">
+      <button class="navbtn prev" id="l-prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Previous</span>
+      </button>
+      <button class="link" id="l-exit">Exit</button>
+      <button class="navbtn next primary" id="l-next" aria-label="Next">
+        <span class="lbl" id="l-next-lbl">Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </section>
+
   <!-- QUIZ -->
   <section id="quiz" class="screen">
     <div class="qhead">
@@ -309,11 +373,38 @@ const GRADES = {
   '8': { label:'Unit',  key:'g8vocab_best_', themes: [{"title": "Friendship", "sets": [[{"en": "like", "tr": "gibi; sevmek"}, {"en": "know", "tr": "bilmek"}, {"en": "need", "tr": "ihtiyaç duymak"}, {"en": "take", "tr": "almak"}, {"en": "say", "tr": "söylemek"}, {"en": "same", "tr": "aynı"}, {"en": "let", "tr": "izin vermek"}, {"en": "different", "tr": "farklı"}, {"en": "nothing", "tr": "hiçbir şey"}, {"en": "full", "tr": "tok"}, {"en": "live", "tr": "yaşamak"}, {"en": "mean", "tr": "anlamına gelmek"}, {"en": "support", "tr": "desteklemek"}, {"en": "call", "tr": "hitap etmek; aramak"}, {"en": "come over", "tr": "uğramak"}, {"en": "together", "tr": "birlikte"}, {"en": "take part in", "tr": "katılmak"}, {"en": "hope", "tr": "ummak; umut etmek"}, {"en": "important", "tr": "önemli"}], [{"en": "talk", "tr": "konuşmak"}, {"en": "become", "tr": "olmak"}, {"en": "understand", "tr": "anlamak"}, {"en": "close", "tr": "yakın"}, {"en": "idea", "tr": "fikir"}, {"en": "possible", "tr": "mümkün"}, {"en": "according to", "tr": "… göre"}, {"en": "available", "tr": "müsait"}, {"en": "meet", "tr": "buluşmak; tanışmak"}, {"en": "hear", "tr": "duymak"}, {"en": "strong", "tr": "güçlü"}, {"en": "similar", "tr": "benzer"}, {"en": "share", "tr": "paylaşmak"}, {"en": "each", "tr": "her bir"}, {"en": "interest", "tr": "ilgi"}, {"en": "alone", "tr": "yalnız"}, {"en": "cool", "tr": "havalı"}, {"en": "relationship", "tr": "ilişki"}, {"en": "sound", "tr": "kulağa … gelmek"}, {"en": "feeling", "tr": "his"}], [{"en": "trust", "tr": "güven; güvenmek"}, {"en": "serious", "tr": "ciddi"}, {"en": "crazy", "tr": "çılgın"}, {"en": "offer", "tr": "teklif etmek"}, {"en": "visit", "tr": "ziyaret etmek"}, {"en": "respect", "tr": "saygı duymak"}, {"en": "funny", "tr": "komik"}, {"en": "tomorrow", "tr": "yarın"}, {"en": "text", "tr": "mesaj yazmak"}, {"en": "individual", "tr": "bireysel"}, {"en": "join", "tr": "katılmak"}, {"en": "opinion", "tr": "fikir"}, {"en": "secret", "tr": "sır"}, {"en": "choose", "tr": "seçmek"}, {"en": "details", "tr": "ayrıntılar"}, {"en": "spend time", "tr": "vakit geçirmek"}, {"en": "comment", "tr": "yorum yapmak"}, {"en": "responsible for", "tr": "sorumlu olmak"}, {"en": "snacks", "tr": "atıştırmalık"}], [{"en": "accept", "tr": "kabul etmek"}, {"en": "lie", "tr": "yalan"}, {"en": "count on", "tr": "güvenmek"}, {"en": "remain", "tr": "kalmak"}, {"en": "state", "tr": "belirtmek; durum"}, {"en": "host (v.)", "tr": "ev sahipliği yapmak"}, {"en": "busy", "tr": "meşgul"}, {"en": "thirsty", "tr": "susamış"}, {"en": "get on well with ...", "tr": "... ile iyi anlaşmak"}, {"en": "honest", "tr": "dürüst"}, {"en": "promise", "tr": "söz vermek"}, {"en": "give advice", "tr": "tavsiye vermek"}, {"en": "survey", "tr": "anket"}, {"en": "neighbour", "tr": "komşu"}, {"en": "city hall", "tr": "belediye binası"}, {"en": "discuss", "tr": "tartışmak"}, {"en": "tell lie", "tr": "yalan söylemek"}, {"en": "combination", "tr": "birleşim"}, {"en": "bond", "tr": "bağ"}, {"en": "definition", "tr": "tanım"}], [{"en": "guest", "tr": "konuk"}, {"en": "prefer", "tr": "tercih etmek"}, {"en": "describe", "tr": "tarif etmek; tanımlamak"}, {"en": "excuse", "tr": "bahane; mazeret"}, {"en": "attend", "tr": "katılmak"}, {"en": "expression", "tr": "ifade"}, {"en": "mate", "tr": "dost; arkadaş"}, {"en": "prepare", "tr": "hazırlamak"}, {"en": "calm", "tr": "sakin"}, {"en": "survive", "tr": "hayatta kalmak"}, {"en": "quote", "tr": "alıntı"}, {"en": "occur", "tr": "meydana gelmek"}, {"en": "break promise", "tr": "sözünü tutmamak"}, {"en": "refer", "tr": "değinmek; kastetmek"}, {"en": "boring", "tr": "sıkıcı"}, {"en": "buddy", "tr": "kanka; arkadaş"}, {"en": "friendship", "tr": "arkadaşlık"}, {"en": "refuse", "tr": "reddetmek"}, {"en": "introduce", "tr": "tanıtmak"}], [{"en": "activity schedule", "tr": "etkinlik programı"}, {"en": "personality type", "tr": "kişilik tipi"}, {"en": "occupied", "tr": "meşgul"}, {"en": "invite", "tr": "davet etmek"}, {"en": "movie theatre", "tr": "sinema"}, {"en": "reliable", "tr": "güvenilir"}, {"en": "rely on", "tr": "güvenmek"}, {"en": "volunteer", "tr": "gönüllü"}, {"en": "back somebody up", "tr": "birini desteklemek"}, {"en": "mutual", "tr": "karşılıklı"}, {"en": "casual", "tr": "gündelik; rahat"}, {"en": "caring", "tr": "şefkatli; ilgili"}, {"en": "patience", "tr": "sabır"}, {"en": "build friendship", "tr": "arkadaşlık kurmak"}, {"en": "loyalty", "tr": "sadakat"}, {"en": "treasure", "tr": "hazine"}, {"en": "apologize", "tr": "özür dilemek"}, {"en": "in a hurry", "tr": "acele"}, {"en": "invitation", "tr": "davetiye"}, {"en": "preference", "tr": "tercih"}], [{"en": "event venue", "tr": "etkinlik yeri"}, {"en": "supportive", "tr": "destekleyici"}, {"en": "relaxed", "tr": "rahat"}, {"en": "stuffed", "tr": "tıka basa tok"}, {"en": "participant", "tr": "katılımcı"}, {"en": "respectful", "tr": "saygılı"}, {"en": "fashionable", "tr": "modaya uygun"}, {"en": "arrange / organize", "tr": "düzenlemek; ayarlamak"}, {"en": "character trait", "tr": "karakter özelliği"}, {"en": "thrilling", "tr": "heyecan verici"}, {"en": "outgoing", "tr": "dışa dönük, sosyal"}, {"en": "priceless", "tr": "paha biçilemez"}, {"en": "yummy", "tr": "lezzetli"}, {"en": "dishonesty", "tr": "yalancılık"}, {"en": "punctual", "tr": "dakik"}, {"en": "punctuality", "tr": "dakiklik"}, {"en": "unconditional", "tr": "koşulsuz"}, {"en": "solemn", "tr": "ağırbaşlı; ciddi"}, {"en": "tactful", "tr": "ince düşünceli; nazik"}]]}, {"title": "Teen Life", "sets": [[{"en": "people", "tr": "insanlar"}, {"en": "think", "tr": "düşünmek"}, {"en": "popular", "tr": "popüler"}, {"en": "get up", "tr": "kalkmak (yataktan)"}, {"en": "say", "tr": "söylemek"}, {"en": "same", "tr": "aynı"}, {"en": "fantastic", "tr": "harika; fantastik"}, {"en": "work out", "tr": "antrenman yapmak"}, {"en": "feel", "tr": "hissetmek"}, {"en": "everywhere", "tr": "her yer"}, {"en": "free", "tr": "ücretsiz; özgür; boş"}, {"en": "cycling", "tr": "bisiklet sürme"}, {"en": "different", "tr": "farklı"}, {"en": "national", "tr": "ulusal; millî"}, {"en": "story", "tr": "hikaye"}, {"en": "news", "tr": "haberler"}, {"en": "free time", "tr": "boş zaman"}, {"en": "body", "tr": "vücut"}, {"en": "room", "tr": "oda"}, {"en": "ask", "tr": "sormak"}, {"en": "data", "tr": "veri"}], [{"en": "stay", "tr": "kalmak"}, {"en": "buy", "tr": "satın almak"}, {"en": "among", "tr": "arasında"}, {"en": "form", "tr": "(grup) kurmak; oluşturmak"}, {"en": "fun", "tr": "eğlenceli; eğlence"}, {"en": "rest", "tr": "dinlenmek"}, {"en": "event", "tr": "olay, etkinlik"}, {"en": "average", "tr": "ortalama"}, {"en": "follow", "tr": "takip etmek"}, {"en": "fast", "tr": "hızlı"}, {"en": "read a book", "tr": "kitap okumak"}, {"en": "amazing", "tr": "harika"}, {"en": "river", "tr": "nehir; ırmak"}, {"en": "write", "tr": "yazmak"}, {"en": "go online", "tr": "internete girmek"}, {"en": "characteristic", "tr": "karakteristik, özellik"}, {"en": "train", "tr": "antrenman yapmak"}, {"en": "meet friends", "tr": "arkadaşlarla buluşmak"}, {"en": "weekend", "tr": "hafta sonu"}, {"en": "latest", "tr": "en son"}], [{"en": "wear", "tr": "giymek"}, {"en": "choose", "tr": "seçmek"}, {"en": "relaxing", "tr": "dinlendirici"}, {"en": "sports programmes", "tr": "spor programları"}, {"en": "dislike", "tr": "sevmemek"}, {"en": "daily life", "tr": "günlük hayat"}, {"en": "spend time", "tr": "vakit geçirmek"}, {"en": "watch TV", "tr": "TV izlemek"}, {"en": "hiking", "tr": "doğa yürüyüşü"}, {"en": "weather", "tr": "hava"}, {"en": "smart", "tr": "şık; akıllı"}, {"en": "study performance", "tr": "ders başarısı"}, {"en": "fashion", "tr": "moda"}, {"en": "memory", "tr": "hafıza; anı"}, {"en": "listen to music", "tr": "müzik dinlemek"}, {"en": "adult", "tr": "yetişkin"}, {"en": "healthy", "tr": "sağlıklı"}, {"en": "screen time", "tr": "ekran süresi"}, {"en": "teen, teenager", "tr": "genç"}, {"en": "youth", "tr": "gençlik"}, {"en": "walk the dog", "tr": "köpeği yürüyüşe çıkarmak"}], [{"en": "mention", "tr": "değinmek"}, {"en": "clothes", "tr": "kıyafetler"}, {"en": "cheap", "tr": "ucuz"}, {"en": "historical", "tr": "tarihi"}, {"en": "have breakfast", "tr": "kahvaltı yapmak"}, {"en": "do the shopping", "tr": "alışveriş yapmak"}, {"en": "comfortable", "tr": "rahat"}, {"en": "personal opinion", "tr": "kişisel görüş"}, {"en": "social environment", "tr": "sosyal çevre"}, {"en": "guitarist", "tr": "gitarist"}, {"en": "recommend", "tr": "önermek"}, {"en": "ticket", "tr": "bilet"}, {"en": "educational", "tr": "eğitimsel; eğitimle ilgili"}, {"en": "play online games", "tr": "online oyunlar oynamak"}, {"en": "take exercise", "tr": "egzersiz yapmak (spor)"}, {"en": "nearby", "tr": "yakında; yakındaki"}, {"en": "loud", "tr": "yüksek sesli"}, {"en": "physical activity", "tr": "fiziksel etkinlik"}, {"en": "regularly", "tr": "düzenli bir şekilde"}, {"en": "comparison", "tr": "karşılaştırma"}, {"en": "topic", "tr": "konu, başlık"}], [{"en": "hang around", "tr": "takılmak; vakit geçirmek"}, {"en": "percentage", "tr": "yüzde"}, {"en": "fishing", "tr": "balık tutma"}, {"en": "impressive", "tr": "etkileyici"}, {"en": "argue", "tr": "tartışmak"}, {"en": "ridiculous", "tr": "saçma, gülünç"}, {"en": "shopping online", "tr": "online alışveriş yapmak"}, {"en": "gym", "tr": "spor salonu"}, {"en": "enjoyable", "tr": "eğlenceli, keyifli"}, {"en": "vocalist", "tr": "şarkıcı, vokalist"}, {"en": "chat with friends", "tr": "arkadaşlarla sohbet etmek"}, {"en": "frequency", "tr": "sıklık"}, {"en": "sing a song", "tr": "şarkı söylemek"}, {"en": "participation", "tr": "katılım"}, {"en": "romance", "tr": "aşk hikâyesi (tür)"}, {"en": "documentary", "tr": "belgesel"}, {"en": "send messages", "tr": "mesaj göndermek"}, {"en": "fantasy books", "tr": "fantastik kitaplar"}, {"en": "habit", "tr": "alışkanlık"}, {"en": "casual", "tr": "gündelik, rahat"}], [{"en": "science fiction", "tr": "bilim kurgu"}, {"en": "do exercises", "tr": "egzersiz yapmak"}, {"en": "conduct a survey", "tr": "anket yapmak"}, {"en": "activity chart", "tr": "etkinlik çizelgesi"}, {"en": "classical music", "tr": "klasik müzik"}, {"en": "daily routine", "tr": "günlük rutin"}, {"en": "advise", "tr": "tavsiye vermek"}, {"en": "detective books", "tr": "dedektif kitapları"}, {"en": "researcher", "tr": "araştırmacı"}, {"en": "terrific", "tr": "müthiş; harika"}, {"en": "prefer / preference", "tr": "tercih etmek / tercih"}, {"en": "surf the Internet", "tr": "internette gezinmek"}, {"en": "patriot", "tr": "vatansever"}, {"en": "drummer", "tr": "baterist"}, {"en": "trendy", "tr": "modaya uygun"}, {"en": "unbearable", "tr": "dayanılmaz, katlanılmaz"}, {"en": "biographical books", "tr": "biyografik kitaplar"}, {"en": "weekdays", "tr": "hafta içi günleri"}, {"en": "scuba diving", "tr": "dalış"}, {"en": "enlarge horizon", "tr": "ufkunu genişletmek"}, {"en": "educative", "tr": "öğretici"}]]}, {"title": "In The Kitchen", "sets": [[{"en": "need", "tr": "ihtiyaç duymak"}, {"en": "serve", "tr": "servis etmek"}, {"en": "square", "tr": "kare"}, {"en": "use", "tr": "kullanmak"}, {"en": "both", "tr": "her ikisi"}, {"en": "put", "tr": "koymak"}, {"en": "meat", "tr": "et"}, {"en": "second", "tr": "saniye"}, {"en": "top", "tr": "üst; üstüne koymak"}, {"en": "rice", "tr": "pirinç"}, {"en": "water", "tr": "su"}, {"en": "side", "tr": "kenar; yan"}, {"en": "season", "tr": "terbiye etmek, baharatlamak"}, {"en": "together", "tr": "birlikte, beraber"}, {"en": "large", "tr": "büyük"}, {"en": "remember", "tr": "hatırlamak"}, {"en": "light", "tr": "hafif; açık (renk)"}, {"en": "turn", "tr": "çevirmek; döndürmek"}, {"en": "process", "tr": "süreç"}, {"en": "cut", "tr": "kesmek"}], [{"en": "main", "tr": "ana, asıl"}, {"en": "salad", "tr": "salata"}, {"en": "cup", "tr": "su bardağı (ölçü); fincan"}, {"en": "oil", "tr": "yağ"}, {"en": "add", "tr": "eklemek"}, {"en": "cover", "tr": "üstünü örtmek, kaplamak"}, {"en": "difficult", "tr": "zor"}, {"en": "piece", "tr": "parça"}, {"en": "beat", "tr": "çırpmak (yumurta)"}, {"en": "minute", "tr": "dakika"}, {"en": "cool down", "tr": "soğumak"}, {"en": "separate", "tr": "ayırmak; ayrı"}, {"en": "surface", "tr": "yüzey"}, {"en": "spread", "tr": "sürmek"}, {"en": "healthy", "tr": "sağlıklı"}, {"en": "indeed", "tr": "gerçekten"}, {"en": "syrup", "tr": "şurup"}, {"en": "slightly", "tr": "hafifçe"}, {"en": "mix", "tr": "karıştırmak"}, {"en": "remove", "tr": "çıkarmak"}], [{"en": "warm", "tr": "ılık"}, {"en": "high heat", "tr": "yüksek sıcaklık"}, {"en": "soft", "tr": "yumuşak"}, {"en": "sugar", "tr": "şeker"}, {"en": "cook", "tr": "pişirmek"}, {"en": "fill", "tr": "doldurmak"}, {"en": "bowl", "tr": "kase"}, {"en": "chicken", "tr": "tavuk"}, {"en": "salt", "tr": "tuz"}, {"en": "cheese", "tr": "peynir"}, {"en": "plate", "tr": "tabak"}, {"en": "prepare", "tr": "hazırlamak"}, {"en": "repeat", "tr": "tekrarlamak"}, {"en": "meal", "tr": "öğün; yemek"}, {"en": "sharp", "tr": "keskin"}, {"en": "get thick", "tr": "koyulaşmak"}, {"en": "procedure", "tr": "yöntem; işlem basamakları"}, {"en": "set aside", "tr": "kenara koymak"}, {"en": "blender", "tr": "blender; mikser"}], [{"en": "knife", "tr": "bıçak"}, {"en": "butter", "tr": "tereyağı"}, {"en": "layer", "tr": "kat; katman"}, {"en": "pot", "tr": "tencere"}, {"en": "smooth", "tr": "pürüzsüz"}, {"en": "instructions", "tr": "talimatlar"}, {"en": "chicken stock", "tr": "tavuk suyu"}, {"en": "delicious", "tr": "lezzetli"}, {"en": "preparation", "tr": "hazırlık"}, {"en": "teaspoon", "tr": "çay kaşığı"}, {"en": "beef", "tr": "sığır eti"}, {"en": "frying pan", "tr": "kızartma tavası"}, {"en": "brush", "tr": "(fırçayla) sürmek"}, {"en": "recipe", "tr": "tarif"}, {"en": "kitchen tool", "tr": "mutfak araç gereci"}, {"en": "wrap", "tr": "sarmak"}, {"en": "mixture", "tr": "karışım"}, {"en": "cooking method", "tr": "pişirme yöntemi"}, {"en": "soup", "tr": "çorba"}, {"en": "vegetables", "tr": "sebzeler"}], [{"en": "pepper", "tr": "biber"}, {"en": "diamond shape", "tr": "baklava dilimi şekli"}, {"en": "combine", "tr": "birleştirmek"}, {"en": "divide", "tr": "bölmek"}, {"en": "pour", "tr": "dökmek (sıvı)"}, {"en": "tender", "tr": "yumuşak (pişmiş et vb.)"}, {"en": "cookie", "tr": "kurabiye"}, {"en": "black pepper", "tr": "karabiber"}, {"en": "oven", "tr": "fırın"}, {"en": "nut", "tr": "kuruyemiş (fındık, ceviz)"}, {"en": "add gradually", "tr": "yavaş yavaş eklemek"}, {"en": "fork", "tr": "çatal"}, {"en": "fridge", "tr": "buzdolabı"}, {"en": "flour", "tr": "un"}, {"en": "slice", "tr": "dilimlemek"}, {"en": "bean", "tr": "fasulye"}, {"en": "rolling pin", "tr": "oklava"}, {"en": "melt", "tr": "erimek"}, {"en": "stir", "tr": "karıştırmak"}, {"en": "toast", "tr": "kızartmak (ekmek)"}], [{"en": "apple pie", "tr": "elmalı turta"}, {"en": "junk food", "tr": "abur cubur"}, {"en": "texture", "tr": "doku"}, {"en": "garlic", "tr": "sarımsak"}, {"en": "pasta", "tr": "makarna"}, {"en": "bake", "tr": "fırında pişirmek"}, {"en": "fry", "tr": "kızartmak"}, {"en": "marmalade", "tr": "marmelat"}, {"en": "onion", "tr": "soğan"}, {"en": "spoon", "tr": "kaşık"}, {"en": "roast", "tr": "fırında kızartmak (et)"}, {"en": "dough", "tr": "hamur"}, {"en": "grill", "tr": "ızgarada pişirmek; ızgara"}, {"en": "tasty", "tr": "lezzetli"}, {"en": "boil", "tr": "haşlamak, kaynatmak"}, {"en": "dessert", "tr": "tatlı"}, {"en": "margarine", "tr": "margarin"}, {"en": "cuisine", "tr": "mutfak (yemek kültürü)"}, {"en": "homemade", "tr": "ev yapımı"}], [{"en": "lemon juice", "tr": "limon suyu"}, {"en": "peel", "tr": "kabuğunu soymak"}, {"en": "spicy", "tr": "baharatlı"}, {"en": "chopped", "tr": "doğranmış"}, {"en": "dice", "tr": "küp küp kesmek"}, {"en": "pinch", "tr": "tutam"}, {"en": "tray", "tr": "tepsi"}, {"en": "ingredient", "tr": "malzeme"}, {"en": "cinnamon", "tr": "tarçın"}, {"en": "scoop", "tr": "kepçe ile koymak"}, {"en": "yeast", "tr": "maya"}, {"en": "baking sheet", "tr": "fırın tepsisi"}, {"en": "baking powder", "tr": "kabartma tozu"}, {"en": "carrot", "tr": "havuç"}, {"en": "soak", "tr": "suda bekletmek; ıslatmak"}, {"en": "mash", "tr": "ezmek; püre yapmak"}, {"en": "rinse", "tr": "yıkamak"}, {"en": "oven-proof dish", "tr": "fırın kabı"}, {"en": "sprinkle", "tr": "serpmek"}, {"en": "celery", "tr": "kereviz"}], [{"en": "seal", "tr": "(kenarlarını) kapatmak"}, {"en": "starch", "tr": "nişasta"}, {"en": "crumble", "tr": "ufalamak"}, {"en": "parsley", "tr": "maydanoz"}, {"en": "parchment paper", "tr": "parşömen kağıdı"}, {"en": "chop finely", "tr": "ince doğramak"}, {"en": "flake", "tr": "pul; ince parça"}, {"en": "whisk", "tr": "çırpmak; çırpma teli"}, {"en": "saucepan", "tr": "kulplu tencere"}, {"en": "minced", "tr": "kıyılmış; kıyma"}, {"en": "apricot", "tr": "kayısı"}, {"en": "flatten", "tr": "düzleştirmek"}, {"en": "preheat", "tr": "önceden ısıtmak"}, {"en": "prawn", "tr": "karides"}, {"en": "mussel", "tr": "midye"}, {"en": "dumpling", "tr": "mantı; içi dolu hamur"}, {"en": "knead", "tr": "yoğurmak"}, {"en": "batter", "tr": "sulu hamur (kek vb.)"}, {"en": "grater", "tr": "rende"}, {"en": "phyllo", "tr": "yufka"}]]}, {"title": "On The Phone", "sets": [[{"en": "want", "tr": "istemek"}, {"en": "way", "tr": "yol"}, {"en": "go out", "tr": "dışarı çıkmak"}, {"en": "give", "tr": "vermek"}, {"en": "without", "tr": "olmaksızın, -sız"}, {"en": "free", "tr": "boş; müsait"}, {"en": "a few", "tr": "birkaç"}, {"en": "company", "tr": "şirket"}, {"en": "different", "tr": "farklı"}, {"en": "anything", "tr": "herhangi bir şey"}, {"en": "change", "tr": "değiştirmek"}, {"en": "enough", "tr": "yeterli"}, {"en": "tell", "tr": "söylemek"}, {"en": "look after", "tr": "birine bakmak"}, {"en": "try", "tr": "denemek"}, {"en": "line", "tr": "hat (telefon)"}, {"en": "kind", "tr": "nazik; kibar"}, {"en": "information", "tr": "bilgi"}, {"en": "good at", "tr": "(bir şeyde) iyi olmak"}, {"en": "talk", "tr": "konuşmak"}], [{"en": "possible", "tr": "mümkün"}, {"en": "put somebody through", "tr": "birini telefona bağlamak"}, {"en": "ask for", "tr": "istemek"}, {"en": "buy", "tr": "satın almak"}, {"en": "operator", "tr": "operatör"}, {"en": "available", "tr": "müsait"}, {"en": "call back", "tr": "geri aramak"}, {"en": "study", "tr": "ders çalışmak"}, {"en": "word", "tr": "kelime"}, {"en": "at the moment", "tr": "şu anda"}, {"en": "hear", "tr": "duymak"}, {"en": "hold on", "tr": "bir saniye beklemek"}, {"en": "wish", "tr": "dilemek"}, {"en": "check-up", "tr": "kontrol; muayene"}, {"en": "answer", "tr": "cevap vermek"}, {"en": "guess", "tr": "tahmin etmek"}, {"en": "learn", "tr": "öğrenmek"}, {"en": "meet up", "tr": "buluşmak"}, {"en": "fast", "tr": "hızlı"}, {"en": "decision", "tr": "karar"}], [{"en": "be born", "tr": "doğmak"}, {"en": "shout", "tr": "bağırmak"}, {"en": "smartphone", "tr": "akıllı telefon"}, {"en": "mark", "tr": "işaretlemek; belirtmek"}, {"en": "charge", "tr": "şarj etmek"}, {"en": "completely", "tr": "tamamen"}, {"en": "contact", "tr": "iletişime geçmek"}, {"en": "link", "tr": "bağlantı"}, {"en": "manager", "tr": "müdür"}, {"en": "hurt", "tr": "yaralamak, incitmek"}, {"en": "reach", "tr": "ulaşmak (birine)"}, {"en": "clearly", "tr": "açık bir şekilde"}, {"en": "imagine", "tr": "hayal etmek"}, {"en": "particular time", "tr": "belirli zaman"}, {"en": "carry", "tr": "taşımak"}, {"en": "application", "tr": "uygulama"}, {"en": "interview", "tr": "röportaj, görüşme"}, {"en": "begin", "tr": "başlamak"}, {"en": "science book", "tr": "bilim kitabı"}, {"en": "ring", "tr": "çalmak (telefon)"}], [{"en": "give a message", "tr": "mesaj vermek"}, {"en": "birth", "tr": "doğum"}, {"en": "journal", "tr": "günlük; dergi"}, {"en": "patient", "tr": "hasta"}, {"en": "ad", "tr": "reklam"}, {"en": "waste time", "tr": "zamanı boşa harcamak"}, {"en": "conversation", "tr": "sohbet"}, {"en": "mention", "tr": "değinmek"}, {"en": "useful", "tr": "kullanışlı"}, {"en": "leave a message", "tr": "mesaj bırakmak"}, {"en": "keep in touch", "tr": "irtibatta kalmak"}, {"en": "device", "tr": "cihaz"}, {"en": "entry", "tr": "giriş"}, {"en": "usual", "tr": "olağan; her zamanki"}, {"en": "write a letter", "tr": "mektup yazmak"}, {"en": "hang on", "tr": "(hatta) beklemek"}, {"en": "delivery", "tr": "teslimat"}, {"en": "replace", "tr": "yerini almak"}, {"en": "revolution", "tr": "devrim"}, {"en": "suppose", "tr": "varsaymak"}], [{"en": "telegram", "tr": "telgraf"}, {"en": "invention", "tr": "icat"}, {"en": "connection problem", "tr": "bağlantı sorunu"}, {"en": "engaged", "tr": "meşgul (hat)"}, {"en": "employee", "tr": "çalışan"}, {"en": "appointment", "tr": "randevu"}, {"en": "repeat", "tr": "tekrarlamak"}, {"en": "proposal", "tr": "teklif"}, {"en": "customer service", "tr": "müşteri hizmetleri"}, {"en": "illness", "tr": "hastalık"}, {"en": "discover", "tr": "keşfetmek"}, {"en": "connect", "tr": "bağlamak"}, {"en": "headquarters", "tr": "genel merkez"}, {"en": "extension number", "tr": "dahili numara"}, {"en": "send messages", "tr": "mesaj göndermek"}, {"en": "overseas", "tr": "yurt dışı; denizaşırı"}, {"en": "experimental", "tr": "deneysel"}, {"en": "passage", "tr": "okuma parçası"}, {"en": "concert hall", "tr": "konser salonu"}, {"en": "arrangement", "tr": "düzenleme"}], [{"en": "rude", "tr": "kaba"}, {"en": "habit", "tr": "alışkanlık"}, {"en": "examine", "tr": "muayene etmek; incelemek"}, {"en": "urgent", "tr": "acil"}, {"en": "reminder", "tr": "hatırlatma"}, {"en": "disagree", "tr": "katılmamak"}, {"en": "receiver", "tr": "ahize; aranan kişi"}, {"en": "make a telephone call", "tr": "telefon araması yapmak"}, {"en": "graduation", "tr": "mezuniyet"}, {"en": "dial", "tr": "numarayı çevirmek"}, {"en": "memo", "tr": "kısa not"}, {"en": "telephone directory", "tr": "telefon rehberi"}, {"en": "caller", "tr": "arayan"}, {"en": "invent", "tr": "icat etmek"}, {"en": "ask for clarification", "tr": "açıklama istemek"}, {"en": "politely", "tr": "kibarca"}, {"en": "mouthpiece", "tr": "ahizenin konuşma kısmı"}, {"en": "bookshop", "tr": "kitapçı"}, {"en": "rearrange", "tr": "yeniden ayarlamak"}, {"en": "addicting", "tr": "bağımlılık yapıcı"}]]}, {"title": "The Internet", "sets": [[{"en": "part", "tr": "parça"}, {"en": "way", "tr": "yol"}, {"en": "use", "tr": "kullanmak"}, {"en": "advantage", "tr": "avantaj"}, {"en": "own", "tr": "kendi"}, {"en": "away", "tr": "uzakta"}, {"en": "statistics", "tr": "istatistikler"}, {"en": "different", "tr": "farklı"}, {"en": "password", "tr": "şifre"}, {"en": "mean", "tr": "anlamına gelmek; kötü niyetli"}, {"en": "health", "tr": "sağlık"}, {"en": "news", "tr": "haberler"}, {"en": "post", "tr": "gönderi"}, {"en": "cause", "tr": "sebep olmak"}, {"en": "check", "tr": "kontrol etmek"}, {"en": "get information", "tr": "bilgi almak"}, {"en": "outside", "tr": "dışarıda; dışarı"}, {"en": "do research", "tr": "araştırma yapmak"}, {"en": "delete", "tr": "silmek"}, {"en": "account", "tr": "hesap"}], [{"en": "share", "tr": "paylaşmak"}, {"en": "break", "tr": "bozmak; kırmak"}, {"en": "average", "tr": "ortalama"}, {"en": "press", "tr": "basmak"}, {"en": "meet people", "tr": "insanlarla tanışmak"}, {"en": "financial ruin", "tr": "mali çöküntü, finansal iflas"}, {"en": "send", "tr": "göndermek"}, {"en": "turn off", "tr": "kapatmak"}, {"en": "sign", "tr": "işaret, imza"}, {"en": "sign in", "tr": "giriş yapmak"}, {"en": "forget", "tr": "unutmak"}, {"en": "offer", "tr": "sunmak; teklif"}, {"en": "create", "tr": "oluşturmak"}, {"en": "store", "tr": "saklamak; depolamak"}, {"en": "via", "tr": "aracılığıyla"}, {"en": "content", "tr": "içerik"}, {"en": "sign up", "tr": "kayıt olmak"}, {"en": "upload", "tr": "yüklemek"}, {"en": "internet addiction", "tr": "internet bağımlılığı"}, {"en": "protect", "tr": "korumak"}], [{"en": "main reason", "tr": "ana sebep"}, {"en": "personal information", "tr": "kişisel bilgi"}, {"en": "comment", "tr": "yorum"}, {"en": "purpose", "tr": "amaç"}, {"en": "environment", "tr": "çevre"}, {"en": "screen", "tr": "ekran"}, {"en": "dangerous", "tr": "tehlikeli"}, {"en": "prevent", "tr": "önlemek"}, {"en": "develop", "tr": "geliştirmek"}, {"en": "file", "tr": "dosya"}, {"en": "fix", "tr": "onarmak; düzeltmek"}, {"en": "transfer", "tr": "aktarmak"}, {"en": "disadvantage", "tr": "dezavantaj"}, {"en": "command", "tr": "komut"}, {"en": "enemy", "tr": "düşman"}, {"en": "download", "tr": "indirmek"}, {"en": "text message", "tr": "kısa mesaj (SMS)"}, {"en": "fill up", "tr": "doldurmak"}, {"en": "properly", "tr": "düzgün bir şekilde"}], [{"en": "Internet safety", "tr": "internet güvenliği"}, {"en": "cell phone", "tr": "cep telefonu"}, {"en": "hang out", "tr": "gezmek, takılmak"}, {"en": "affect", "tr": "etkilemek"}, {"en": "register", "tr": "kayıt olmak"}, {"en": "describe", "tr": "tarif etmek"}, {"en": "social skills", "tr": "sosyal beceriler"}, {"en": "destroy", "tr": "yok etmek"}, {"en": "search engine", "tr": "arama motoru"}, {"en": "do harm", "tr": "zarar vermek"}, {"en": "speaker", "tr": "hoparlör; konuşmacı"}, {"en": "topic", "tr": "konu"}, {"en": "relative", "tr": "akraba"}, {"en": "live chat", "tr": "canlı sohbet"}, {"en": "mind", "tr": "sakıncası olmak; umursamak"}, {"en": "nickname", "tr": "takma ad"}, {"en": "confirm", "tr": "onaylamak"}, {"en": "log off", "tr": "oturumu kapatmak"}, {"en": "spare time", "tr": "boş zaman"}, {"en": "trap", "tr": "tuzak"}], [{"en": "job losses", "tr": "iş kayıpları"}, {"en": "stranger", "tr": "yabancı"}, {"en": "isolated", "tr": "izole edilmiş"}, {"en": "outdoor", "tr": "açık havada; dış mekân"}, {"en": "online privacy", "tr": "çevrimiçi gizlilik"}, {"en": "risk of fraud", "tr": "dolandırıcılık riski"}, {"en": "nowadays", "tr": "günümüzde; bugünlerde"}, {"en": "avoid risks", "tr": "risklerden kaçınmak"}, {"en": "indoor", "tr": "kapalı alanda; iç mekân"}, {"en": "harmful", "tr": "zararlı"}, {"en": "attachment", "tr": "dosya eki"}, {"en": "reset", "tr": "sıfırlamak"}, {"en": "username", "tr": "kullanıcı adı"}, {"en": "take precautions", "tr": "önlem almak"}, {"en": "browse", "tr": "göz atmak; gezinmek"}, {"en": "instant messaging", "tr": "anlık mesajlaşma"}, {"en": "social networking sites", "tr": "sosyal ağ siteleri"}, {"en": "webcam", "tr": "web kamerası"}, {"en": "cyberbullying", "tr": "siber zorbalık"}, {"en": "socialising", "tr": "sosyalleşme"}]]}, {"title": "Adventures", "sets": [[{"en": "equipment", "tr": "ekipman"}, {"en": "go up", "tr": "yukarı çıkmak"}, {"en": "go down", "tr": "aşağı inmek"}, {"en": "look after", "tr": "bakmak; ilgilenmek"}, {"en": "area", "tr": "alan"}, {"en": "reason", "tr": "sebep"}, {"en": "make a change", "tr": "değişiklik yapmak"}, {"en": "experience", "tr": "tecrübe; tecrübe etmek"}, {"en": "fight", "tr": "savaşmak"}, {"en": "guess", "tr": "tahmin etmek"}, {"en": "alone", "tr": "yalnız"}, {"en": "motor racing", "tr": "motor yarışı"}, {"en": "have in common", "tr": "ortak noktası olmak"}, {"en": "ground", "tr": "yer"}, {"en": "below", "tr": "aşağıda"}, {"en": "track", "tr": "parkur; iz"}, {"en": "interesting", "tr": "ilginç"}, {"en": "speed", "tr": "hız"}, {"en": "agree", "tr": "katılmak"}, {"en": "construction", "tr": "yapı"}], [{"en": "train", "tr": "antrenman yapmak"}, {"en": "fall down", "tr": "düşmek"}, {"en": "plant", "tr": "bitki"}, {"en": "challenge", "tr": "zorluk, meydan okuma"}, {"en": "take risk", "tr": "risk almak"}, {"en": "hiking", "tr": "doğa yürüyüşü"}, {"en": "come towards", "tr": "-e doğru gelmek"}, {"en": "wind", "tr": "rüzgar"}, {"en": "other sports", "tr": "diğer sporlar"}, {"en": "hill", "tr": "tepe"}, {"en": "rare", "tr": "nadir"}, {"en": "rock face", "tr": "sarp kayalık"}, {"en": "guide", "tr": "rehber"}, {"en": "water sports", "tr": "su sporları"}, {"en": "historical", "tr": "tarihi"}, {"en": "express", "tr": "ifade etmek"}, {"en": "air sports", "tr": "hava sporları"}, {"en": "device", "tr": "cihaz"}, {"en": "skateboarding", "tr": "kaykay binmek"}], [{"en": "land sports", "tr": "kara sporları"}, {"en": "aircraft", "tr": "hava aracı"}, {"en": "falls", "tr": "şelale"}, {"en": "incredible", "tr": "inanılmaz"}, {"en": "wave", "tr": "dalga"}, {"en": "natural wonder", "tr": "doğal harika"}, {"en": "row", "tr": "kürek çekmek"}, {"en": "elastic", "tr": "elastik"}, {"en": "pleasure", "tr": "keyif"}, {"en": "exciting", "tr": "heyecan verici"}, {"en": "height", "tr": "yükseklik"}, {"en": "tower", "tr": "kule"}, {"en": "rough", "tr": "dalgalı; sert"}, {"en": "dangerous conditions", "tr": "tehlikeli şartlar"}, {"en": "natural beauty", "tr": "doğal güzellik"}, {"en": "impressive", "tr": "etkileyici"}, {"en": "tied", "tr": "bağlı"}, {"en": "rank", "tr": "sıralamak; derece"}, {"en": "desert", "tr": "çöl"}, {"en": "landscape", "tr": "peyzaj; arazi manzarası"}], [{"en": "northern lights", "tr": "kuzey ışıkları"}, {"en": "wooden", "tr": "ahşap"}, {"en": "extreme sports", "tr": "sıra dışı sporlar, tehlikeli sporlar"}, {"en": "explore", "tr": "keşfetmek"}, {"en": "involve", "tr": "içermek"}, {"en": "challenging", "tr": "zorlayıcı"}, {"en": "breathe", "tr": "nefes almak"}, {"en": "spider", "tr": "örümcek"}, {"en": "rubber", "tr": "lastik"}, {"en": "excitement", "tr": "heyecan"}, {"en": "push limits", "tr": "sınırları zorlamak"}, {"en": "take safety measures", "tr": "güvenlik önlemi almak"}, {"en": "climber", "tr": "dağcı"}, {"en": "safety instructions", "tr": "güvenlik talimatları"}, {"en": "fascinating", "tr": "büyüleyici"}, {"en": "entertaining", "tr": "eğlenceli"}, {"en": "sea creatures", "tr": "deniz canlıları"}, {"en": "disappointing", "tr": "hayal kırıcı"}, {"en": "helmet", "tr": "kask"}, {"en": "sail", "tr": "yelken açmak"}], [{"en": "expedition", "tr": "keşif gezisi"}, {"en": "rock climbing", "tr": "kaya tırmanışı"}, {"en": "ice climbing", "tr": "buz tırmanışı"}, {"en": "float", "tr": "süzülmek; yüzmek (su üstünde)"}, {"en": "altitude", "tr": "rakım"}, {"en": "canoeing", "tr": "kano sporu"}, {"en": "aid rope", "tr": "destek halatı"}, {"en": "skiing", "tr": "kayak"}, {"en": "diving suit", "tr": "dalış takımı"}, {"en": "amusing", "tr": "eğlendirici; komik"}, {"en": "knee pad", "tr": "diz koruyucu, dizlik"}, {"en": "surfing", "tr": "sörf yapmak"}, {"en": "highland", "tr": "yayla; dağlık bölge"}, {"en": "giving explanations", "tr": "açıklama yapmak"}, {"en": "scenery", "tr": "manzara; doğal görünüm"}, {"en": "thrilling", "tr": "heyecan verici"}, {"en": "breathtaking", "tr": "nefes kesici"}, {"en": "amused", "tr": "eğlenmiş; keyiflenmiş"}, {"en": "adventurous", "tr": "maceracı"}], [{"en": "goggles", "tr": "koruyucu gözlük"}, {"en": "skyscraper", "tr": "gökdelen"}, {"en": "riding a hot-air balloon", "tr": "sıcak hava balonuna binmek"}, {"en": "scuba diving", "tr": "su altı dalışı"}, {"en": "hang-gliding", "tr": "yelken kanat (delta kanat) uçuşu"}, {"en": "kayaking", "tr": "kayak (tek kişilik kano) sporu"}, {"en": "trekking", "tr": "uzun doğa yürüyüşü"}, {"en": "skydiving", "tr": "serbest paraşüt atlayışı"}, {"en": "rafting", "tr": "rafting (botla nehirde iniş)"}, {"en": "caving", "tr": "mağaracılık"}, {"en": "parkour", "tr": "parkur sporu (engelleri aşarak koşu)"}, {"en": "bungee jumping", "tr": "lastik iple yüksekten atlama"}, {"en": "paragliding", "tr": "yamaç paraşütü"}, {"en": "sand kiting", "tr": "kum uçurtması sporu"}, {"en": "labyrinths", "tr": "labirentler"}, {"en": "wingsuit", "tr": "kanatlı uçuş tulumu"}, {"en": "unpowered", "tr": "motorsuz"}, {"en": "parasailing", "tr": "deniz paraşütü"}, {"en": "ziplining", "tr": "halatla kayarak iniş (zipline)"}, {"en": "sandboarding", "tr": "kum sörfü"}]]}, {"title": "Tourism", "sets": [[{"en": "country", "tr": "ülke"}, {"en": "whole", "tr": "bütün"}, {"en": "story", "tr": "hikaye"}, {"en": "important", "tr": "önemli"}, {"en": "book", "tr": "rezervasyon yaptırmak"}, {"en": "local", "tr": "yerel"}, {"en": "next year", "tr": "gelecek sene"}, {"en": "building", "tr": "bina"}, {"en": "street", "tr": "sokak"}, {"en": "experience", "tr": "tecrübe; tecrübe etmek"}, {"en": "town", "tr": "kasaba"}, {"en": "include", "tr": "içermek"}, {"en": "happen", "tr": "meydana gelmek"}, {"en": "have a rest", "tr": "dinlenmek"}, {"en": "noisy", "tr": "gürültülü"}, {"en": "well-known", "tr": "ünlü"}, {"en": "step", "tr": "basamak"}, {"en": "trade", "tr": "ticaret"}, {"en": "cover", "tr": "kaplamak"}, {"en": "foreign", "tr": "yabancı"}, {"en": "huge", "tr": "kocaman"}, {"en": "build", "tr": "inşa etmek"}], [{"en": "century", "tr": "yüzyıl"}, {"en": "island", "tr": "ada"}, {"en": "make a wish", "tr": "dilek tutmak"}, {"en": "population", "tr": "nüfus"}, {"en": "interesting", "tr": "ilginç"}, {"en": "reservation", "tr": "rezervasyon"}, {"en": "ship", "tr": "gemi"}, {"en": "wonder", "tr": "merak etmek"}, {"en": "imagine", "tr": "hayal etmek"}, {"en": "hometown", "tr": "memleket"}, {"en": "trip", "tr": "gezi; kısa yolculuk"}, {"en": "truly", "tr": "gerçekten"}, {"en": "condition", "tr": "durum"}, {"en": "religious", "tr": "dini"}, {"en": "begin", "tr": "başlamak"}, {"en": "lie", "tr": "uzanmak"}, {"en": "square", "tr": "meydan"}, {"en": "extremely", "tr": "son derece"}, {"en": "excited", "tr": "heyecanlı"}, {"en": "lovely", "tr": "hoş; güzel"}, {"en": "port", "tr": "liman"}], [{"en": "shoot out", "tr": "fışkırmak"}, {"en": "cheap", "tr": "ucuz"}, {"en": "terrible", "tr": "berbat"}, {"en": "fixed", "tr": "sabit; belirlenmiş"}, {"en": "expensive", "tr": "pahalı"}, {"en": "ancient", "tr": "antik; çok eski"}, {"en": "golden", "tr": "altın; altın rengi"}, {"en": "pack", "tr": "eşyalarını toplamak"}, {"en": "quiet", "tr": "sessiz"}, {"en": "urban", "tr": "kentsel"}, {"en": "escape", "tr": "kaçmak"}, {"en": "incredible", "tr": "inanılmaz"}, {"en": "painting", "tr": "tablo"}, {"en": "register", "tr": "kayıt olmak; kayıt"}, {"en": "rural", "tr": "taşra, kırsal"}, {"en": "typical", "tr": "tipik"}, {"en": "seaside", "tr": "deniz kenarı"}, {"en": "public", "tr": "halk; halka açık"}, {"en": "transportation", "tr": "ulaşım"}, {"en": "dirty", "tr": "kirli"}, {"en": "aged", "tr": "yaşlı; asırlık"}], [{"en": "organise", "tr": "organize etmek"}, {"en": "tower", "tr": "kule"}, {"en": "tradition", "tr": "gelenek"}, {"en": "palace", "tr": "saray"}, {"en": "temple", "tr": "tapınak"}, {"en": "ancient site", "tr": "antik alan"}, {"en": "architecture", "tr": "mimari"}, {"en": "soil", "tr": "toprak"}, {"en": "abroad", "tr": "yurt dışı"}, {"en": "narrow", "tr": "dar"}, {"en": "belong", "tr": "ait olmak"}, {"en": "journalist", "tr": "gazeteci"}, {"en": "resort", "tr": "tatil yeri"}, {"en": "settle", "tr": "yerleşmek"}, {"en": "bed and breakfast", "tr": "kahvaltı ve yatak veren yerler"}, {"en": "gorgeous", "tr": "muhteşem"}, {"en": "intention", "tr": "niyet"}, {"en": "wildlife", "tr": "vahşi yaşam"}, {"en": "celebration", "tr": "kutlama"}, {"en": "the Statue of Liberty", "tr": "Özgürlük Heykeli"}, {"en": "rude", "tr": "kaba"}, {"en": "destination", "tr": "varış noktası"}], [{"en": "relate", "tr": "ilişkilendirmek; ilgili olmak"}, {"en": "cruise", "tr": "deniz gezisi"}, {"en": "dish", "tr": "yemek"}, {"en": "farming", "tr": "çiftçilik"}, {"en": "wealthy", "tr": "zengin"}, {"en": "historic sites", "tr": "tarihi yerler"}, {"en": "mysterious", "tr": "gizemli"}, {"en": "ash", "tr": "kül"}, {"en": "earthquake", "tr": "deprem"}, {"en": "all-inclusive", "tr": "her şey dahil"}, {"en": "fascinating", "tr": "büyüleyici"}, {"en": "archaeologist", "tr": "arkeolog"}, {"en": "attraction", "tr": "gezilecek yer"}, {"en": "narrow streets", "tr": "dar sokaklar"}, {"en": "cultural heritage", "tr": "kültürel miras"}, {"en": "unbelievable", "tr": "inanılmaz"}, {"en": "accommodation", "tr": "konaklama"}, {"en": "spectacular", "tr": "muhteşem"}, {"en": "shopping mall", "tr": "alışveriş merkezi"}, {"en": "expedition", "tr": "keşif gezisi"}, {"en": "water pipeline", "tr": "su boru hattı"}, {"en": "crowded", "tr": "kalabalık"}], [{"en": "dull", "tr": "sıkıcı; kasvetli"}, {"en": "countryside", "tr": "kırsal, köy"}, {"en": "fountain", "tr": "çeşme; fıskiye"}, {"en": "guided tour", "tr": "rehberli tur"}, {"en": "admission fee", "tr": "giriş ücreti"}, {"en": "amphitheatre", "tr": "amfitiyatro"}, {"en": "entertain", "tr": "eğlendirmek"}, {"en": "local cuisine", "tr": "yerel mutfak"}, {"en": "tourist attraction", "tr": "turistik cazibe merkezi"}, {"en": "relaxation", "tr": "dinlenme"}, {"en": "historic landmark", "tr": "tarihi yapı"}, {"en": "uncover", "tr": "ortaya çıkarmak"}, {"en": "tiring", "tr": "yorucu"}, {"en": "souvenir", "tr": "hediyelik eşya"}, {"en": "itinerary", "tr": "gezi programı"}, {"en": "sightseeing tour", "tr": "şehir gezisi turu"}, {"en": "Caribbean", "tr": "Karayip"}, {"en": "erupt", "tr": "(yanardağ) patlamak"}, {"en": "hospitable", "tr": "misafirperver"}, {"en": "suntan", "tr": "bronzlaşmak; bronzluk"}, {"en": "sunbathe", "tr": "güneşlenmek"}]]}, {"title": "Chores", "sets": [[{"en": "on time", "tr": "vaktinde"}, {"en": "think", "tr": "düşünmek"}, {"en": "say", "tr": "söylemek"}, {"en": "let", "tr": "izin vermek"}, {"en": "question", "tr": "soru"}, {"en": "wash the dishes", "tr": "bulaşıkları yıkamak"}, {"en": "ask", "tr": "sormak"}, {"en": "ready", "tr": "hazır"}, {"en": "wife", "tr": "karı; eş"}, {"en": "share", "tr": "paylaşmak"}, {"en": "member", "tr": "üye"}, {"en": "learn", "tr": "öğrenmek"}, {"en": "to-do list", "tr": "yapılacaklar listesi"}, {"en": "step", "tr": "adım"}, {"en": "title", "tr": "başlık"}, {"en": "article", "tr": "makale"}, {"en": "rules", "tr": "kurallar"}, {"en": "respect", "tr": "saygı duymak"}, {"en": "floor", "tr": "zemin; yer"}, {"en": "opinion", "tr": "fikir"}], [{"en": "make the bed", "tr": "yatağı toplamak"}, {"en": "main idea", "tr": "ana fikir"}, {"en": "necessary", "tr": "gerekli"}, {"en": "clean up", "tr": "temizlemek"}, {"en": "dry the dishes", "tr": "bulaşıkları kurulamak"}, {"en": "soul", "tr": "ruh"}, {"en": "set the table", "tr": "masayı kurmak"}, {"en": "adult", "tr": "yetişkin"}, {"en": "healthy", "tr": "sağlıklı"}, {"en": "take care", "tr": "ilgilenmek; bakmak"}, {"en": "setting", "tr": "ortam; mekân"}, {"en": "responsibility", "tr": "sorumluluk"}, {"en": "mention", "tr": "değinmek, bahsetmek"}, {"en": "duty", "tr": "görev; vazife"}, {"en": "promise", "tr": "söz vermek"}, {"en": "survey", "tr": "anket"}, {"en": "shoes", "tr": "ayakkabılar"}, {"en": "do the shopping", "tr": "alışveriş yapmak"}, {"en": "get worried", "tr": "endişelenmek"}, {"en": "mess", "tr": "dağınıklık"}], [{"en": "plate", "tr": "tabak"}, {"en": "tidy", "tr": "toplamak; düzenlemek"}, {"en": "percentage", "tr": "yüzde"}, {"en": "mind", "tr": "umursamak; sakıncası olmak"}, {"en": "vacuum the floor", "tr": "yerleri süpürgelemek"}, {"en": "respect others’ rights", "tr": "başkalarının haklarına saygı duymak"}, {"en": "pocket money", "tr": "harçlık"}, {"en": "feed the cat", "tr": "kediyi beslemek"}, {"en": "contribute", "tr": "katkıda bulunmak"}, {"en": "punishment", "tr": "ceza"}, {"en": "wash the car", "tr": "arabayı yıkamak"}, {"en": "peaceful", "tr": "huzurlu"}, {"en": "poem", "tr": "şiir"}, {"en": "complain", "tr": "şikayet etmek"}, {"en": "correctly", "tr": "doğru şekilde"}, {"en": "carpet", "tr": "halı"}, {"en": "strong ties", "tr": "güçlü bağlar"}, {"en": "do the laundry", "tr": "çamaşır yıkamak"}, {"en": "share duties", "tr": "görevleri paylaşmak"}], [{"en": "meaningful", "tr": "anlamlı"}, {"en": "obligation", "tr": "zorunluluk"}, {"en": "fork", "tr": "çatal"}, {"en": "take out the garbage", "tr": "çöpü atmak"}, {"en": "dust the furniture", "tr": "mobilyaların tozunu almak"}, {"en": "household responsibilities", "tr": "ev sorumlulukları"}, {"en": "obey", "tr": "uymak"}, {"en": "cooperate", "tr": "iş birliği yapmak"}, {"en": "elders", "tr": "büyükler"}, {"en": "chew", "tr": "çiğnemek"}, {"en": "keep tidy", "tr": "düzenli tutmak"}, {"en": "do errands", "tr": "ayak işleri yapmak"}, {"en": "assign a task", "tr": "görev vermek"}, {"en": "annoy", "tr": "sinirlendirmek"}, {"en": "do the ironing", "tr": "ütü yapmak"}, {"en": "household chores", "tr": "ev işleri"}, {"en": "mop the floor", "tr": "yerleri silmek"}, {"en": "distribute chores", "tr": "ev işlerini paylaştırmak"}, {"en": "empty the dishwasher", "tr": "bulaşık makinesini boşaltmak"}, {"en": "load the dishwasher", "tr": "bulaşık makinesini doldurmak"}]]}, {"title": "Science", "sets": [[{"en": "analysis", "tr": "analiz"}, {"en": "branch", "tr": "dal; branş"}, {"en": "change", "tr": "değiştirmek"}, {"en": "believe", "tr": "inanmak"}, {"en": "come over", "tr": "uğramak"}, {"en": "season", "tr": "mevsim"}, {"en": "law", "tr": "yasa; hukuk"}, {"en": "information", "tr": "bilgi (haber)"}, {"en": "fact", "tr": "gerçek"}, {"en": "death", "tr": "ölüm"}, {"en": "matter", "tr": "madde"}, {"en": "wait", "tr": "beklemek"}, {"en": "art", "tr": "sanat"}, {"en": "process", "tr": "süreç"}, {"en": "cost", "tr": "harcama; maliyet"}, {"en": "do research", "tr": "araştırma yapmak"}, {"en": "space", "tr": "uzay"}, {"en": "account", "tr": "hesap; açıklama"}, {"en": "center", "tr": "merkez"}], [{"en": "inside", "tr": "içerisi"}, {"en": "result", "tr": "sonuç"}, {"en": "test tube", "tr": "test tüpü"}, {"en": "page", "tr": "sayfa"}, {"en": "science", "tr": "bilim"}, {"en": "entire", "tr": "tüm"}, {"en": "cover", "tr": "örtü; kapak"}, {"en": "currently", "tr": "şu anda"}, {"en": "calculator", "tr": "hesap makinesi"}, {"en": "Earth", "tr": "Dünya"}, {"en": "shout", "tr": "bağırmak"}, {"en": "navigation", "tr": "navigasyon"}, {"en": "century", "tr": "yüzyıl"}, {"en": "store", "tr": "depolamak"}, {"en": "allow", "tr": "izin vermek"}, {"en": "quickly", "tr": "hızlı bir şekilde"}, {"en": "knowledge", "tr": "bilgi (birikim)"}, {"en": "subject", "tr": "konu"}, {"en": "claim", "tr": "iddia etmek"}], [{"en": "reach", "tr": "ulaşmak"}, {"en": "master", "tr": "usta; efendi"}, {"en": "disease", "tr": "hastalık"}, {"en": "cell", "tr": "hücre"}, {"en": "realize", "tr": "fark etmek"}, {"en": "pass away", "tr": "vefat etmek"}, {"en": "gain", "tr": "kazanmak"}, {"en": "spread", "tr": "yayılmak"}, {"en": "skeleton", "tr": "iskelet"}, {"en": "improve", "tr": "iyileştirmek; geliştirmek"}, {"en": "patient", "tr": "hasta"}, {"en": "data table", "tr": "veri tablosu"}, {"en": "develop", "tr": "geliştirmek"}, {"en": "unique", "tr": "eşsiz"}, {"en": "appreciate", "tr": "takdir etmek"}, {"en": "compass", "tr": "pusula"}, {"en": "exist", "tr": "var olmak"}, {"en": "magnet", "tr": "mıknatıs"}, {"en": "medicine", "tr": "tıp; ilaç"}], [{"en": "reduce", "tr": "azaltmak"}, {"en": "planet", "tr": "gezegen"}, {"en": "get treated", "tr": "tedavi görmek"}, {"en": "scientific", "tr": "bilimsel"}, {"en": "measure", "tr": "ölçmek"}, {"en": "novel", "tr": "roman"}, {"en": "struggle", "tr": "mücadele etmek"}, {"en": "tiny", "tr": "minicik"}, {"en": "deserve", "tr": "hak etmek"}, {"en": "universe", "tr": "kainat"}, {"en": "replace", "tr": "yerini almak"}, {"en": "brilliant", "tr": "parlak; zeki"}, {"en": "invention", "tr": "icat"}, {"en": "print", "tr": "basmak; yazdırmak"}, {"en": "loud", "tr": "yüksek sesli"}, {"en": "paint", "tr": "resim yapmak; boyamak"}, {"en": "survive", "tr": "hayatta kalmak"}, {"en": "childhood", "tr": "çocukluk"}, {"en": "bacterial infection", "tr": "bakteriyel enfeksiyon"}, {"en": "lift", "tr": "kaldırmak"}], [{"en": "improvement", "tr": "gelişme; ilerleme"}, {"en": "healthcare", "tr": "sağlık hizmeti"}, {"en": "lab", "tr": "laboratuvar"}, {"en": "skill", "tr": "beceri"}, {"en": "conclusion", "tr": "sonuç"}, {"en": "delay", "tr": "gecikme"}, {"en": "physics", "tr": "fizik"}, {"en": "solar system", "tr": "Güneş sistemi"}, {"en": "experiment", "tr": "deney, deney yapmak"}, {"en": "spin", "tr": "dönmek"}, {"en": "environmental engineering", "tr": "çevre mühendisliği"}, {"en": "achievement", "tr": "başarı"}, {"en": "scientific method", "tr": "bilimsel yöntem"}, {"en": "genius", "tr": "dahi"}, {"en": "cure", "tr": "tedavi"}, {"en": "poetry book", "tr": "şiir kitabı"}, {"en": "science fiction", "tr": "bilim kurgu"}, {"en": "scientist", "tr": "bilim insanı"}, {"en": "patience", "tr": "sabır"}], [{"en": "examine", "tr": "incelemek; muayene etmek"}, {"en": "revolutionary", "tr": "devrimsel"}, {"en": "heal", "tr": "iyileştirmek"}, {"en": "printing press", "tr": "matbaa makinesi"}, {"en": "publish", "tr": "yayınlamak"}, {"en": "gravity of matter", "tr": "maddenin çekim kuvveti"}, {"en": "servant", "tr": "hizmetçi"}, {"en": "merchant", "tr": "tüccar"}, {"en": "continent", "tr": "kıta"}, {"en": "horizon", "tr": "ufuk"}, {"en": "ink", "tr": "mürekkep"}, {"en": "observe", "tr": "gözlemlemek"}, {"en": "conduct an experiment", "tr": "deney yapmak"}, {"en": "exceptional", "tr": "olağanüstü"}, {"en": "insist on", "tr": "ısrar etmek"}, {"en": "orbit", "tr": "yörüngede dönmek; yörünge"}, {"en": "reject", "tr": "reddetmek"}, {"en": "electric bulb", "tr": "ampul"}, {"en": "axis", "tr": "eksen"}], [{"en": "needle", "tr": "iğne"}, {"en": "admire", "tr": "hayran olmak"}, {"en": "headache", "tr": "baş ağrısı"}, {"en": "manuscript", "tr": "el yazması"}, {"en": "hypothesis", "tr": "hipotez"}, {"en": "explode", "tr": "patlamak"}, {"en": "calculation", "tr": "hesaplama"}, {"en": "geology", "tr": "jeoloji"}, {"en": "milestone", "tr": "dönüm noktası"}, {"en": "physician", "tr": "hekim; doktor"}, {"en": "absent-minded", "tr": "unutkan"}, {"en": "unbearable", "tr": "dayanılmaz"}, {"en": "diagnose", "tr": "teşhis etmek"}, {"en": "widen", "tr": "genişletmek"}, {"en": "goldsmith", "tr": "kuyumcu"}, {"en": "movable", "tr": "hareketli; taşınabilir"}, {"en": "groove", "tr": "oluk; yiv"}, {"en": "vaccinate", "tr": "aşılamak"}, {"en": "water screw", "tr": "su vidası (Arşimet burgusu)"}]]}, {"title": "Natural Forces", "sets": [[{"en": "different", "tr": "farklı"}, {"en": "man-made", "tr": "insan yapımı"}, {"en": "large", "tr": "büyük; geniş"}, {"en": "global warming", "tr": "küresel ısınma"}, {"en": "move", "tr": "hareket etmek; taşınmak"}, {"en": "tornado", "tr": "hortum"}, {"en": "difficult", "tr": "zor"}, {"en": "huge", "tr": "kocaman"}, {"en": "missing", "tr": "kayıp (kişi)"}, {"en": "stay away", "tr": "uzak durmak"}, {"en": "pressure", "tr": "basınç; baskı"}, {"en": "quick", "tr": "hızlı"}, {"en": "reach", "tr": "ulaşmak"}, {"en": "necessary", "tr": "gerekli"}, {"en": "damage", "tr": "zarar vermek"}, {"en": "effective", "tr": "etkili"}, {"en": "surface", "tr": "yüzey"}, {"en": "dry", "tr": "kuru"}, {"en": "injury", "tr": "yaralanma"}, {"en": "terrible", "tr": "berbat"}, {"en": "measure", "tr": "önlem; ölçmek"}], [{"en": "erosion", "tr": "erozyon"}, {"en": "hide", "tr": "saklanmak"}, {"en": "climate change", "tr": "iklim değişikliği"}, {"en": "get injured", "tr": "yaralanmak"}, {"en": "forest fire", "tr": "orman yangını"}, {"en": "efficient", "tr": "verimli"}, {"en": "narrow", "tr": "dar"}, {"en": "rescue team", "tr": "arama kurtarma ekibi"}, {"en": "fault lines", "tr": "fay hatları"}, {"en": "flood", "tr": "sel"}, {"en": "shake", "tr": "sarsılmak; sarsıntı"}, {"en": "plates", "tr": "(yer kabuğu) plakaları"}, {"en": "threatening", "tr": "tehdit edici"}, {"en": "mysterious", "tr": "gizemli"}, {"en": "earthquake", "tr": "deprem"}, {"en": "emergency kit", "tr": "acil durum çantası"}, {"en": "hurricane", "tr": "kasırga"}, {"en": "air pollution", "tr": "hava kirliliği"}, {"en": "unbelievable", "tr": "inanılmaz"}, {"en": "destroy / destruction", "tr": "yıkmak / yıkım"}, {"en": "warn", "tr": "uyarmak"}, {"en": "magnitude", "tr": "büyüklük"}], [{"en": "elevator", "tr": "asansör"}, {"en": "educate", "tr": "eğitmek"}, {"en": "drought", "tr": "kuraklık"}, {"en": "destructive", "tr": "tahrip edici"}, {"en": "water shortage", "tr": "su kıtlığı"}, {"en": "strike/struck/hit", "tr": "(afet) vurmak; çarpmak"}, {"en": "take place / occur / happen", "tr": "meydana gelmek"}, {"en": "hazardous", "tr": "tehlikeli; zararlı"}, {"en": "severity", "tr": "şiddet"}, {"en": "take precautions", "tr": "tedbirler almak"}, {"en": "irresponsible", "tr": "sorumsuz"}, {"en": "evacuate", "tr": "tahliye etmek"}, {"en": "avalanche", "tr": "çığ"}, {"en": "forest degradation", "tr": "orman tahribatı"}, {"en": "landslide", "tr": "toprak kayması, heyelan"}, {"en": "take emergency precautions", "tr": "acil önlem almak"}, {"en": "volcanic eruption", "tr": "yanardağ patlaması"}, {"en": "deforestation", "tr": "ormansızlaşma"}, {"en": "uncontrollable", "tr": "kontrol edilemez"}, {"en": "immobilized", "tr": "hareketsiz kalmış"}, {"en": "aftershock", "tr": "artçı sarsıntı"}]]}] }
 };
 let G = '5', THEMES = GRADES[G].themes;
+/* tag every word with its place, so My Words can find its set again */
+Object.values(GRADES).forEach(gr => gr.themes.forEach((th, t) => th.sets.forEach((set, s) => set.forEach(w => { w._t = t; w._s = s; }))));
 const UL = () => GRADES[G].label;
 
 /* ---------- storage (safe) ---------- */
 function getBest(t, s){ try{ const v = localStorage.getItem(GRADES[G].key+t+'_'+s); return v===null? null : parseInt(v,10); }catch(e){ return null; } }
 function setBest(t, s, v){ try{ const b = getBest(t,s); if(b===null || v>b) localStorage.setItem(GRADES[G].key+t+'_'+s, v); }catch(e){} }
+
+function lsGet(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+/* ---------- My Words: every missed word, until it is answered right twice in a row ---------- */
+const MY_NEED = 2;
+const myKey = () => `g${G}vocab_mywords`;
+const wKey = w => `${w._t}|${w._s}|${w.en}`;
+function myLoad(){ return lsGet(myKey(), {}); }
+function myWords(){
+  const m = myLoad(), out = [];
+  for(const k in m){
+    const [t, s, ...en] = k.split('|'); const set = (THEMES[+t]||{sets:[]}).sets[+s];
+    const w = set && set.find(x => x.en===en.join('|'));
+    if(w) out.push(w);
+  }
+  return out;
+}
+function myRecord(w, right){
+  const m = myLoad(), k = wKey(w);
+  if(!right){ m[k] = 0; }
+  else if(k in m){ m[k] += 1; if(m[k] >= MY_NEED) delete m[k]; }
+  lsSet(myKey(), m);
+}
+
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -337,6 +428,15 @@ function show(id){
 /* ---------- theme list ---------- */
 function renderThemes(){
   const box = $('theme-list'); box.innerHTML = '';
+  const mine = myWords();
+  const mw = document.createElement('button');
+  mw.className = 'row mine' + (mine.length ? '' : ' empty');
+  mw.innerHTML = `<span class="num">&#9733;</span>
+    <span class="main"><div class="title">My Words</div>
+    <div class="sub">${mine.length ? `${mine.length} word${mine.length>1?'s':''} to practise` : 'Words you miss will be saved here'}</div></span>
+    ${mine.length ? `<span class="badge part">${mine.length}</span>` : ''}`;
+  if(mine.length) mw.onclick = () => startMyWords();
+  box.appendChild(mw);
   THEMES.forEach((th, ti) => {
     const n = th.sets.reduce((a,s)=>a+s.length,0);
     const dots = th.sets.map((s,si) => { const b = getBest(ti,si); return `<i class="${b===null?'':(b===s.length?'done':'played')}"></i>`; }).join('');
@@ -369,10 +469,49 @@ function renderSets(){
     el.innerHTML = `<span class="num">${si+1}</span>
       <span class="main"><div class="title">Set ${si+1}</div>
       <div class="sub"><span class="lvl">${bars}</span>${LEVELS[lv]} · ${set.length} words</div></span>${badge}`;
-    el.onclick = () => startRound(si, false);
+    el.onclick = () => openIntro(si);
     box.appendChild(el);
   });
 }
+
+/* ---------- set intro ---------- */
+function openIntro(si){
+  S = si;
+  const set = THEMES[T].sets[S], lv = levelOf(S, THEMES[T].sets.length), b = getBest(T, S);
+  $('intro-eyebrow').textContent = `${UL()} ${T+1} · ${THEMES[T].title}`;
+  $('intro-level').textContent = `${LEVELS[lv]} · ${set.length} words`;
+  $('intro-title').textContent = `Set ${S+1}`;
+  $('intro-best').textContent = b===null ? 'Not played yet' : `Best: ${b} / ${set.length}`;
+  $('intro-preview').textContent = set.slice(0, 8).map(w => w.en).join(' · ') + (set.length>8 ? ' …' : '');
+  show('intro');
+}
+
+/* ---------- learn (flashcards) ---------- */
+let learn = null;
+function startLearn(){
+  learn = { words: THEMES[T].sets[S], idx: 0, flipped: false };
+  initAudio(); loadVoices();
+  $('l-where').textContent = `${UL()} ${T+1} · Set ${S+1}`;
+  show('learn'); renderCard();
+}
+function renderCard(){
+  const w = learn.words[learn.idx], n = learn.words.length;
+  $('l-en').textContent = w.en;
+  $('l-tr').textContent = learn.flipped ? w.tr : '';
+  $('card').classList.toggle('flipped', learn.flipped);
+  $('l-pos').textContent = `${learn.idx+1} / ${n}`;
+  $('l-bar').style.width = ((learn.idx+1)/n*100) + '%';
+  $('l-prev').disabled = learn.idx===0;
+  $('l-next-lbl').textContent = learn.idx===n-1 ? 'Quiz' : 'Next';
+}
+function flipCard(){ learn.flipped = !learn.flipped; renderCard(); }
+function learnGo(d){
+  const j = learn.idx + d;
+  if(j >= learn.words.length){ beginQuiz(); return; }
+  if(j < 0) return;
+  learn.idx = j; learn.flipped = false; renderCard();
+}
+function beginQuiz(){ startRound(S, 'quiz'); }
 
 /* ---------- options ---------- */
 /* two words clash (never shown together) if they are in the same synonym group,
@@ -392,8 +531,8 @@ function clash(a, b){
   return false;
 }
 function buildOptions(w){
-  const set = THEMES[T].sets[S];
-  const all = THEMES[T].sets.flat();
+  const set = THEMES[w._t].sets[w._s];
+  const all = THEMES[w._t].sets.flat();
   const picked = [], seen = new Set([w.tr]);
   const take = pool => { for(const c of shuffle(pool)){ if(picked.length>=3) break; if(clash(w,c) || seen.has(c.tr)) continue; seen.add(c.tr); picked.push(c.tr); } };
   take(set);                 // same set first: words studied together
@@ -402,15 +541,20 @@ function buildOptions(w){
 }
 
 /* ---------- rounds ---------- */
-function startRound(si, review, words){
-  S = si;
-  const list = review ? words : THEMES[T].sets[S];
-  round = { review, idx:0, items: shuffle(list).map(w => ({ w, opts: buildOptions(w), pick: null })) };
+/* mode: 'quiz' (a whole set) · 'review' (mistakes of this round) · 'mywords' */
+function startRound(si, mode, words){
+  if(si!==null) S = si;
+  const list = words || THEMES[T].sets[S];
+  round = { mode, review: mode!=='quiz', idx:0, items: shuffle(list).map(w => ({ w, opts: buildOptions(w), pick: null })) };
   initAudio(); loadVoices();
-  $('quiz').classList.toggle('review', review);
-  $('q-where').textContent = `${UL()} ${T+1} · Set ${S+1}`;
+  $('quiz').classList.toggle('review', round.review);
+  document.querySelector('#quiz .mode-tag').textContent = mode==='mywords' ? 'My Words' : 'Review';
+  $('q-where').textContent = mode==='mywords' ? `Grade ${G} · My Words` : `${UL()} ${T+1} · Set ${S+1}`;
   show('quiz');
   renderQ();
+}
+function startMyWords(){
+  startRound(null, 'mywords', shuffle(myWords()).slice(0, 20));
 }
 function scoreOf(){ return round.items.filter(it => it.pick===it.w.tr).length; }
 
@@ -456,6 +600,7 @@ function answer(k){
   it.pick = it.opts[k];
   const right = it.pick===it.w.tr;
   playTone(right ? 'correct' : 'wrong');
+  myRecord(it.w, right);
   paintAnswer(true);
   $('q-score').textContent = scoreOf();
   $('q-bar').style.width = (round.items.filter(x => x.pick!==null).length/round.items.length*100) + '%';
@@ -475,9 +620,12 @@ function go(d){
 function finish(){
   const n = round.items.length, sc = scoreOf();
   const wrong = round.items.filter(it => it.pick!==it.w.tr).map(it => it.w);
+  if(round.mode==='mywords'){ finishMyWords(n, sc, wrong); return; }
   const setLen = THEMES[T].sets[S].length;
   const hasNext = S < THEMES[T].sets.length-1;
   $('r-where').textContent = `${UL()} ${T+1} · Set ${S+1}` + (round.review ? ' · Review' : '');
+  $('r-retry').style.display = ''; $('r-sets').textContent = 'All sets';
+  $('r-sets').onclick = () => { renderSets(); show('sets'); };
 
   if(!round.review){
     setBest(T, S, sc);
@@ -506,10 +654,10 @@ function finish(){
   const P = $('r-primary');
   if(!perfect){
     P.textContent = `Practice mistakes (${wrong.length})`; P.className = 'btn';
-    P.onclick = () => startRound(S, true, wrong);
+    P.onclick = () => startRound(S, 'review', wrong);
   } else if(hasNext){
     P.textContent = `Go to Set ${S+2}`; P.className = 'btn ok';
-    P.onclick = () => startRound(S+1, false);
+    P.onclick = () => openIntro(S+1);
   } else {
     P.textContent = `Choose another ${UL().toLowerCase()}`; P.className = 'btn ok';
     P.onclick = () => { renderThemes(); show('themes'); };
@@ -521,54 +669,67 @@ function finish(){
   show('result');
   if(perfect){ playTone('win'); startConfetti(); }
 }
-
-/* ---------- audio: soft tones ---------- */
-let actx = null, silentEl = null;
-/* iPhone: play sound even when the ring/silent switch is on.
-   Safari 16.4+ supports navigator.audioSession; older iOS gets a looping silent <audio>,
-   which moves the page into the "playback" audio category. */
-function unlockSilentMode(){
-  try{
-    if(navigator.audioSession){ navigator.audioSession.type = 'playback'; return; }
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
-    if(!iOS || silentEl) return;
-    const n = 4000, buf = new ArrayBuffer(44+n), v = new DataView(buf);
-    const w = (o,s) => { for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
-    w(0,'RIFF'); v.setUint32(4,36+n,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
-    v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,8000,true); v.setUint32(28,8000,true);
-    v.setUint16(32,1,true); v.setUint16(34,8,true); w(36,'data'); v.setUint32(40,n,true);
-    for(let i=0;i<n;i++) v.setUint8(44+i,128);
-    silentEl = document.createElement('audio');
-    silentEl.src = URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
-    silentEl.loop = true; silentEl.setAttribute('playsinline',''); silentEl.setAttribute('x-webkit-airplay','deny');
-    const p = silentEl.play(); if(p && p.catch) p.catch(()=>{ silentEl = null; });
-  }catch(e){}
+function finishMyWords(n, sc, wrong){
+  const left = myWords().length;
+  $('r-where').textContent = `Grade ${G} · My Words`;
+  $('r-fin').textContent = wrong.length ? 'Fin.' : 'Well done.';
+  $('r-score').textContent = `You got ${sc} out of ${n}`;
+  $('r-note').textContent = left ? `${left} word${left>1?'s':''} left in My Words` : 'My Words is empty. Great job!';
+  const items = $('r-items'); items.innerHTML = '';
+  wrong.forEach(w => {
+    const d = document.createElement('div'); d.className = 'm-item';
+    d.innerHTML = `<span class="en">${esc(w.en)}</span><button class="audio" aria-label="Listen">${SPEAKER}</button><span class="tr">${esc(w.tr)}</span>`;
+    d.querySelector('.audio').onclick = () => speak(w.en);
+    items.appendChild(d);
+  });
+  const perfect = !wrong.length;
+  $('r-mistakes').style.display = perfect ? 'none' : '';
+  $('r-spacer').style.display = perfect ? '' : 'none';
+  $('r-clear').style.display = perfect ? '' : 'none';
+  $('r-clear').textContent = perfect ? (left ? 'Nice! Keep going to empty your list.' : 'You have no words left to practise.') : '';
+  const P = $('r-primary');
+  if(left){ P.textContent = `Practise My Words (${left})`; P.className = perfect ? 'btn ok' : 'btn'; P.onclick = startMyWords; }
+  else { P.textContent = `Back to ${UL().toLowerCase()}s`; P.className = 'btn ok'; P.onclick = () => { renderThemes(); show('themes'); }; }
+  $('r-retry').style.display = 'none'; $('r-next').style.display = 'none';
+  $('r-sets').textContent = `All ${UL().toLowerCase()}s`;
+  $('r-sets').onclick = () => { renderThemes(); show('themes'); };
+  show('result');
+  if(perfect){ playTone('win'); startConfetti(); }
 }
+
+/* ---------- audio: soft tones ----------
+   Uses Web Audio, so it follows the phone's silent switch (no sound when muted). */
+let actx = null;
 function initAudio(){
-  unlockSilentMode();
   try{
     if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
     if(actx.state==='suspended') actx.resume();
   }catch(e){}
 }
+/* one soft, rounded note: sine + faint octave, through a low-pass filter */
+function note(freq, t, dur, vol, cutoff){
+  const g = actx.createGain(), lp = actx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = cutoff || 2400;
+  g.connect(lp); lp.connect(actx.destination);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + .018);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  [[1, 1], [2, .18]].forEach(([mul, amp]) => {
+    const o = actx.createOscillator(), og = actx.createGain();
+    o.type = 'sine'; o.frequency.value = freq * mul; og.gain.value = amp;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + .05);
+  });
+}
 function playTone(type){
   if(!actx) return;
-  const now = actx.currentTime;
-  const bell = (f, t, dur, vol) => {
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(actx.destination);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+.02); g.gain.exponentialRampToValueAtTime(.001, t+dur);
-    o.start(t); o.stop(t+dur);
-  };
-  const wood = t => {
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = 'triangle'; o.frequency.value = 300; o.connect(g); g.connect(actx.destination);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t+.01); g.gain.exponentialRampToValueAtTime(.001, t+.1);
-    o.start(t); o.stop(t+.1);
-  };
-  if(type==='correct'){ [523.25,659.25,783.99].forEach(f => bell(f, now, 1.4, .1)); bell(987.77, now, 1.4, .08); }
-  else if(type==='wrong'){ wood(now); }
-  else if(type==='win'){ const s=.15; bell(523.25,now,2,.1); bell(659.25,now+s,2,.1); bell(783.99,now+s*2,2,.1); bell(1046.5,now+s*3,3,.2); }
+  const t = actx.currentTime + .01;
+  if(type==='correct'){                     // gentle rising two-note chime
+    note(783.99, t, .55, .07); note(1046.5, t + .09, .8, .065);
+  } else if(type==='wrong'){                // soft, low "hmm-mm", no buzz
+    note(329.63, t, .28, .06, 900); note(261.63, t + .13, .38, .055, 800);
+  } else if(type==='win'){                  // calm arpeggio
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, t + i*.13, i===3 ? 1.8 : 1.1, .06));
+  }
 }
 
 /* ---------- speech ---------- */
@@ -584,7 +745,6 @@ function loadVoices(){
 if(hasSpeech){ loadVoices(); if(speechSynthesis.onvoiceschanged!==undefined) speechSynthesis.onvoiceschanged = loadVoices; }
 function speak(text){
   if(!hasSpeech) return;
-  unlockSilentMode();
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/\(.*?\)/g,'').replace('/', ' or '));
   if(voice) u.voice = voice;
@@ -622,16 +782,33 @@ function pickGrade(g){
 document.querySelectorAll('[data-grade]').forEach(b => b.onclick = () => pickGrade(b.dataset.grade));
 $('themes-back').onclick = () => show('cover');
 $('sets-back').onclick = () => { renderThemes(); show('themes'); };
-$('exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); renderSets(); show('sets'); };
+$('exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel();
+  if(round && round.mode==='mywords'){ renderThemes(); show('themes'); } else { renderSets(); show('sets'); } };
+$('intro-back').onclick = () => { renderSets(); show('sets'); };
+$('intro-learn').onclick = startLearn;
+$('intro-quiz').onclick = beginQuiz;
+$('card').onclick = e => { if(e.target.closest('.audio')) return; flipCard(); };
+$('l-audio').onclick = () => speak(learn.words[learn.idx].en);
+$('l-prev').onclick = () => learnGo(-1);
+$('l-next').onclick = () => learnGo(1);
+$('l-exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); openIntro(S); };
+
 $('prev').onclick = () => go(-1);
 $('next').onclick = () => go(1);
 $('q-audio').onclick = () => speak(round.items[round.idx].w.en);
-$('r-retry').onclick = () => startRound(S, false);
-$('r-next').onclick = () => startRound(S+1, false);
-$('r-sets').onclick = () => { renderSets(); show('sets'); };
+$('r-retry').onclick = () => startRound(S, 'quiz');
+$('r-next').onclick = () => openIntro(S+1);
 
 /* keyboard (smartboard keyboards / laptops): A–D or 1–4 answer, ←/→ move, Enter next, Space listen */
 document.addEventListener('keydown', e => {
+  if($('learn').classList.contains('active')){
+    const k = e.key.toLowerCase();
+    if(k==='arrowright' || k==='enter'){ learnGo(1); e.preventDefault(); }
+    else if(k==='arrowleft'){ learnGo(-1); e.preventDefault(); }
+    else if(k===' '){ flipCard(); e.preventDefault(); }
+    else if(k==='s'){ speak(learn.words[learn.idx].en); }
+    return;
+  }
   if(!$('quiz').classList.contains('active')) return;
   const k = e.key.toLowerCase();
   const map = {a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3};
