@@ -228,6 +228,18 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
 .snd.off{color:var(--bad)}
 @media (min-width:900px) and (min-height:620px){ .snd svg{width:26px;height:26px} }
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:999}
+/* slow listening */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #DEDAD4;color:var(--muted);
+  padding:7px 13px;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
+  cursor:pointer;touch-action:manipulation;transition:color .2s,border-color .2s
+}
+.pill svg{width:15px;height:15px}
+.pill:hover{color:var(--accent);border-color:var(--accent)}
+.no-speech .pill{display:none}
+.word-col{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:22px}
+.word-col .word-wrap{margin-bottom:0}
+@media (min-width:900px) and (min-height:620px){ .pill{font-size:.9rem;padding:10px 18px} .pill svg{width:20px;height:20px} .word-col{margin-bottom:34px} }
 
 /* ---------- smartboard / large screens ---------- */
 @media (min-width:900px) and (min-height:620px){
@@ -319,6 +331,7 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
       <button class="audio" id="l-audio" aria-label="Listen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
       </button>
+      <button class="pill" id="l-slow" aria-label="Listen slowly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Slow</button>
       <div class="tr" id="l-tr"></div>
       <div class="hint">Tap to see the meaning</div>
     </div>
@@ -341,11 +354,14 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
     </div>
     <div class="progress"><div id="q-bar"></div></div>
     <div class="stage">
-      <div class="word-wrap">
-        <h2 id="word">word</h2>
-        <button class="audio" id="q-audio" aria-label="Listen" title="Listen (Space)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
-        </button>
+      <div class="word-col">
+        <div class="word-wrap">
+          <h2 id="word">word</h2>
+          <button class="audio" id="q-audio" aria-label="Listen" title="Listen (Space)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          </button>
+        </div>
+        <button class="pill" id="q-slow" aria-label="Listen slowly" title="Listen slowly (L)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Slow</button>
       </div>
       <div class="options" id="options"></div>
     </div>
@@ -771,18 +787,23 @@ let voice = null;
 function loadVoices(){
   if(!hasSpeech) return;
   const v = speechSynthesis.getVoices();
+  const L = x => String(x.lang || '').replace(/_/g, '-').toLowerCase();   // Android may report "en_US"
   voice = v.find(x => x.name==='Google US English') || v.find(x => x.name==='Samantha')
-       || v.find(x => x.lang==='en-US') || v.find(x => x.lang && x.lang.startsWith('en')) || null;
+       || v.find(x => L(x)==='en-us' && /google/i.test(x.name)) || v.find(x => L(x)==='en-us')
+       || v.find(x => L(x).startsWith('en')) || null;
 }
 if(hasSpeech){ loadVoices(); if(speechSynthesis.onvoiceschanged!==undefined) speechSynthesis.onvoiceschanged = loadVoices; }
-function speak(text){
+function speak(text, rate){
   if(!hasSpeech) return;
+  const busy = speechSynthesis.speaking || speechSynthesis.pending;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/\(.*?\)/g,'').replace('/', ' or '));
-  if(voice) u.voice = voice;
-  u.lang = 'en-US'; u.rate = .9; u.pitch = 1;
-  speechSynthesis.speak(u);
+  const u = new SpeechSynthesisUtterance(text.replace(/\(.*?\)/g,'').replace(/\//g, ' or '));
+  if(voice){ u.voice = voice; u.lang = voice.lang.replace(/_/g, '-'); } else u.lang = 'en-US';
+  u.rate = rate || .9; u.pitch = 1;
+  if(busy) setTimeout(() => speechSynthesis.speak(u), 80);   // Android drops a speak() that follows cancel() too closely
+  else speechSynthesis.speak(u);
 }
+const speakSlow = text => speak(text, .55);
 
 /* ---------- confetti ---------- */
 let confOn = false;
@@ -819,8 +840,9 @@ $('exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel();
 $('intro-back').onclick = () => { renderSets(); show('sets'); };
 $('intro-learn').onclick = startLearn;
 $('intro-quiz').onclick = beginQuiz;
-$('card').onclick = e => { if(e.target.closest('.audio')) return; flipCard(); };
+$('card').onclick = e => { if(e.target.closest('button')) return; flipCard(); };
 $('l-audio').onclick = () => speak(learn.words[learn.idx].en);
+$('l-slow').onclick = () => speakSlow(learn.words[learn.idx].en);
 $('l-prev').onclick = () => learnGo(-1);
 $('l-next').onclick = () => learnGo(1);
 $('l-exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); openIntro(S); };
@@ -829,6 +851,7 @@ $('prev').onclick = () => go(-1);
 $('snd').onclick = toggleSound; renderSound();
 $('next').onclick = () => go(1);
 $('q-audio').onclick = () => speak(round.items[round.idx].w.en);
+$('q-slow').onclick = () => speakSlow(round.items[round.idx].w.en);
 $('r-retry').onclick = () => startRound(S, 'quiz');
 $('r-next').onclick = () => openIntro(S+1);
 
@@ -863,6 +886,7 @@ document.addEventListener('keydown', e => {
     else if(k==='arrowleft'){ learnGo(-1); e.preventDefault(); }
     else if(k===' '){ flipCard(); e.preventDefault(); }
     else if(k==='s'){ speak(learn.words[learn.idx].en); }
+    else if(k==='l'){ speakSlow(learn.words[learn.idx].en); }
     return;
   }
   if(!$('quiz').classList.contains('active')) return;
@@ -872,6 +896,7 @@ document.addEventListener('keydown', e => {
   else if(k==='arrowright' || k==='enter'){ go(1); e.preventDefault(); }
   else if(k==='arrowleft'){ go(-1); e.preventDefault(); }
   else if(k===' '){ speak(round.items[round.idx].w.en); e.preventDefault(); }
+  else if(k==='l'){ speakSlow(round.items[round.idx].w.en); }
   else if(k==='m'){ toggleSound(); }
 });
 </script>
