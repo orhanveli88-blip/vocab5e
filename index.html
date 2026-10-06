@@ -266,11 +266,62 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
   .navbtn .lbl{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- dark mode (Espresso) ----------
+   html[data-mode] is set before the page draws (script in <head>):
+   the phone's own setting, unless the student chose with the moon/sun button. */
+html[data-mode="dark"]{
+  --bg:#171310; --card:#211C18; --ink:#EEE6DC; --muted:#A8998A; --line:#342C26; --line2:#4A4038; --soft:#2A231E;
+  --accent:#B07F55; --accent-soft:#38291E; --on-accent:#1F1914;
+  --ok:#5F7F1F; --ok-soft:#26301A; --ok-text:#A3C065;
+  --bad:#A8352C; --bad-soft:#3A201D; --bad-text:#E2867C;
+  --gold:#D6B062;
+  --shadow:0 18px 44px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+html[data-mode="dark"] .opt, html[data-mode="dark"] .pill, html[data-mode="dark"] .seg button,
+html[data-mode="dark"] .sheet .box{background:var(--card);border-color:var(--line2)}
+html[data-mode="dark"] .seg{border-color:var(--line2)}
+html[data-mode="dark"] .opt.correct{background:var(--ok);border-color:var(--ok)}
+html[data-mode="dark"] .opt.wrong{background:var(--bad);border-color:var(--bad)}
+html[data-mode="dark"] .pill.on, html[data-mode="dark"] .seg button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+/* latte buttons carry dark espresso text */
+html[data-mode="dark"] .btn:not(.ghost), html[data-mode="dark"] .navbtn.primary{color:var(--on-accent)}
+html[data-mode="dark"] .btn.ok{color:#fff}
+html[data-mode="dark"] .btn{box-shadow:0 6px 16px rgba(0,0,0,.35)}
+html[data-mode="dark"] .card.flipped{background:var(--card)}
+html[data-mode="dark"] .card:hover{border-color:var(--line2)}
+html[data-mode="dark"] .dots i.played{background:var(--line2)}
+html[data-mode="dark"] .navbtn.primary:not(:disabled):hover{background:#BE8E64}
+html[data-mode="dark"] .sheet{background:rgba(0,0,0,.55)}
+html[data-mode="dark"] .sheet .voice.bad{border-color:#5A2D28}
+html[data-mode="dark"] .badge{color:var(--ok-text)}
+html[data-mode="dark"] .badge.part{color:var(--accent)}
+html[data-mode="dark"] .say-res.good{color:var(--ok-text)}
+html[data-mode="dark"] .say-res.bad, html[data-mode="dark"] .m-item .tr{color:var(--bad-text)}
+html[data-mode="dark"] .snd.off{color:var(--bad-text)}
+/* moon / sun button on the cover */
+#cover{position:relative}
+/* sits in the empty strip above every screen's header, so it shows on all screens */
+.theme-btn{position:absolute;top:6px;right:8px;z-index:5;background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:50%;display:inline-flex;opacity:.85;transition:color .2s,background .2s,opacity .2s;touch-action:manipulation}
+.theme-btn:hover{color:var(--accent);background:var(--accent-soft);opacity:1}
+.theme-btn svg{width:18px;height:18px}
+@media (min-width:900px) and (min-height:620px){ .theme-btn{top:10px;right:14px;padding:7px} .theme-btn svg{width:22px;height:22px} }
 </style>
+<script>
+/* choose light/dark before the page is drawn, so it never flashes white */
+(function(){
+  var t = null; try{ t = localStorage.getItem('vocab_theme'); }catch(e){}
+  var m = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  var dark = t ? t === 'dark' : !!(m && m.matches);
+  document.documentElement.setAttribute('data-mode', dark ? 'dark' : 'light');
+})();
+</script>
 </head>
 <body>
 <canvas id="confetti"></canvas>
 <div class="app" id="app">
+  <button class="theme-btn" id="theme-btn" aria-label="Dark mode" title="Dark / light"></button>
 
   <!-- COVER -->
   <section id="cover" class="screen active">
@@ -899,6 +950,30 @@ document.addEventListener('keydown', e => {
   else if(k==='l'){ speakSlow(round.items[round.idx].w.en); }
   else if(k==='m'){ toggleSound(); }
 });
+
+/* ---------- dark / light ---------- */
+const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>';
+function applyMode(mode){
+  document.documentElement.setAttribute('data-mode', mode);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', mode==='dark' ? '#171310' : '#944E38');
+  const b = $('theme-btn');
+  if(b){ b.innerHTML = mode==='dark' ? SUN : MOON; b.setAttribute('aria-label', mode==='dark' ? 'Light mode' : 'Dark mode'); }
+}
+function savedMode(){ try{ return localStorage.getItem('vocab_theme'); }catch(e){ return null; } }
+const darkMQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+applyMode(document.documentElement.getAttribute('data-mode') || 'light');
+$('theme-btn').onclick = () => {
+  const next = document.documentElement.getAttribute('data-mode')==='dark' ? 'light' : 'dark';
+  try{ localStorage.setItem('vocab_theme', next); }catch(e){}
+  applyMode(next);
+};
+/* follow the phone's setting while the student has not chosen one */
+if(darkMQ){
+  const onSys = e => { if(!savedMode()) applyMode(e.matches ? 'dark' : 'light'); };
+  if(darkMQ.addEventListener) darkMQ.addEventListener('change', onSys); else if(darkMQ.addListener) darkMQ.addListener(onSys);
+}
 </script>
 </body>
 </html>
