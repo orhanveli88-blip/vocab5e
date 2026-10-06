@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F3F1ED;          /* cream / cashmere */
@@ -267,39 +267,98 @@ h2{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* ---------- dark mode (Espresso) ----------
-   html[data-mode] is set before the page draws (script in <head>):
-   the phone's own setting, unless the student chose with the moon/sun button. */
+/* ---------- dark mode ----------
+   Palette taken from Mr. Yıldırım's timetable design: espresso ground, tonal
+   olive-brown / taupe blocks, cream text. No bright accent: buttons are filled
+   blocks with cream text, highlights are cream-taupe.
+   html[data-mode] is set before the page draws (script in <head>). */
 html[data-mode="dark"]{
-  --bg:#171310; --card:#211C18; --ink:#EEE6DC; --muted:#8E8378; --line:#342C26; --line2:#4A4038; --soft:#2A231E;
-  --accent:#B5A291; --accent-soft:#352D27; --on-accent:#1F1914;
-  --ok:#5F7F1F; --ok-soft:#26301A; --ok-text:#A3C065;
-  --bad:#A8352C; --bad-soft:#3A201D; --bad-text:#E2867C;
-  --gold:#D6B062;
+  --bg:#1A1715; --card:#231F1C; --soft:#2B2622; --line:#332D28; --line2:#4A423A;
+  --ink:#EDE5D8; --muted:#ABA195;
+  --accent:#D2C2A6;            /* highlight text: titles, meanings, labels */
+  --fill:#695A43;              /* button / bar fill (the timetable's light-brown block) */
+  --fill-hover:#76664D; --on-fill:#F3ECE0;
+  --accent-soft:#3A332B;
+  --ok:#5C6A3A; --ok-soft:#2A2E20; --ok-text:#B3BF8C;
+  --bad:#7A4034; --bad-soft:#3A2420; --bad-text:#D9A091;
+  --gold:#C9A24B;
   --shadow:0 18px 44px rgba(0,0,0,.45);
   color-scheme:dark;
 }
-html[data-mode="dark"] .opt, html[data-mode="dark"] .pill, html[data-mode="dark"] .seg button,
-html[data-mode="dark"] .sheet .box{background:var(--card);border-color:var(--line2)}
-html[data-mode="dark"] .seg{border-color:var(--line2)}
-html[data-mode="dark"] .opt.correct{background:var(--ok);border-color:var(--ok)}
-html[data-mode="dark"] .opt.wrong{background:var(--bad);border-color:var(--bad)}
-html[data-mode="dark"] .pill.on, html[data-mode="dark"] .seg button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-/* latte buttons carry dark espresso text */
-html[data-mode="dark"] .btn:not(.ghost), html[data-mode="dark"] .navbtn.primary{color:var(--on-accent)}
-html[data-mode="dark"] .btn.ok{color:#fff}
+html[data-mode="dark"] .btn:not(.ghost):not(.ok), html[data-mode="dark"] .navbtn.primary,
+html[data-mode="dark"] .pill.on, html[data-mode="dark"] .seg button.on{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
 html[data-mode="dark"] .btn{box-shadow:0 6px 16px rgba(0,0,0,.35)}
-html[data-mode="dark"] .card.flipped{background:var(--card)}
+html[data-mode="dark"] .navbtn.primary:not(:disabled):hover{background:var(--fill-hover)}
+html[data-mode="dark"] .btn.ok{color:var(--on-fill)}
+html[data-mode="dark"] .progress>div, html[data-mode="dark"] .app::before{background:var(--fill)}
+html[data-mode="dark"] .app::before{opacity:1}
+html[data-mode="dark"] .review .progress>div{background:var(--gold)}
+html[data-mode="dark"] .opt, html[data-mode="dark"] .pill, html[data-mode="dark"] .seg button,
+html[data-mode="dark"] .sheet .box{background:var(--soft);border-color:var(--line2)}
+html[data-mode="dark"] .opt:hover:not(:disabled){background:#332D28;border-color:var(--accent)}
+html[data-mode="dark"] .seg{border-color:var(--line2)}
+html[data-mode="dark"] .opt.correct{background:var(--ok);border-color:var(--ok);color:var(--on-fill)}
+html[data-mode="dark"] .opt.wrong{background:var(--bad);border-color:var(--bad);color:var(--on-fill)}
+html[data-mode="dark"] .card{background:var(--soft)}
+html[data-mode="dark"] .card.flipped{background:var(--card);border-color:var(--fill)}
 html[data-mode="dark"] .card:hover{border-color:var(--line2)}
 html[data-mode="dark"] .dots i.played{background:var(--line2)}
-html[data-mode="dark"] .navbtn.primary:not(:disabled):hover{background:#C4B2A2}
+html[data-mode="dark"] .dots i.done{background:#7E8A55}
 html[data-mode="dark"] .sheet{background:rgba(0,0,0,.55)}
 html[data-mode="dark"] .sheet .voice.bad{border-color:#5A2D28}
-html[data-mode="dark"] .badge{color:var(--ok-text)}
-html[data-mode="dark"] .badge.part{color:var(--accent)}
+html[data-mode="dark"] .badge{background:var(--ok-soft);color:var(--ok-text)}
+html[data-mode="dark"] .badge.part{background:var(--accent-soft);color:var(--accent)}
 html[data-mode="dark"] .say-res.good{color:var(--ok-text)}
 html[data-mode="dark"] .say-res.bad, html[data-mode="dark"] .m-item .tr{color:var(--bad-text)}
 html[data-mode="dark"] .snd.off{color:var(--bad-text)}
+/* ---------- dark mode, quiet-luxury layer: hairlines, outlined buttons, quiet feedback ---------- */
+html[data-mode="dark"] h1{color:var(--ink)}
+html[data-mode="dark"] .row .num{color:var(--muted)}
+html[data-mode="dark"] .fin{color:var(--ink)}
+/* hairlines instead of bars */
+html[data-mode="dark"] .app::before{height:1px;background:var(--gold);opacity:.7}
+html[data-mode="dark"] .progress{height:1px}
+html[data-mode="dark"] .progress>div{background:var(--accent)}
+/* outlined buttons */
+html[data-mode="dark"] .btn:not(.ghost):not(.ok), html[data-mode="dark"] .btn.ghost{background:transparent;color:var(--ink);border:1px solid #8C7F6E;box-shadow:none;font-weight:600;letter-spacing:2.4px}
+html[data-mode="dark"] .btn:not(.ghost):not(.ok):hover{background:rgba(237,229,216,.06)}
+html[data-mode="dark"] .btn.ok{background:transparent;color:var(--ok-text);border:1px solid #7E8A55;box-shadow:none}
+html[data-mode="dark"] .navbtn, html[data-mode="dark"] .navbtn.primary{background:transparent;color:var(--ink);border:1px solid #8C7F6E;letter-spacing:2px}
+html[data-mode="dark"] .navbtn.primary:not(:disabled):hover{background:rgba(237,229,216,.06)}
+html[data-mode="dark"] .navbtn:disabled{opacity:.22}
+/* options: hairline cards, quiet feedback */
+html[data-mode="dark"] .opt{background:transparent;border:1px solid var(--line2)}
+html[data-mode="dark"] .opt .key{border-color:var(--line2)}
+html[data-mode="dark"] .opt.correct{background:rgba(126,138,85,.16);border-color:#8E9C62;color:var(--ink)}
+html[data-mode="dark"] .opt.correct .key{border-color:#8E9C62;color:#B3BF8C}
+html[data-mode="dark"] .opt.correct .mark{color:#B3BF8C}
+html[data-mode="dark"] .opt.wrong{background:rgba(150,76,62,.16);border-color:#A0594B;color:var(--ink)}
+html[data-mode="dark"] .opt.wrong .key{border-color:#A0594B;color:#D9A091}
+html[data-mode="dark"] .opt.wrong .mark{color:#D9A091}
+html[data-mode="dark"] .opt.dim{opacity:.35}
+html[data-mode="dark"] .card{background:transparent;border-color:var(--line)}
+html[data-mode="dark"] .card.flipped{border-color:#8C7F6E}
+html[data-mode="dark"] .pill{background:transparent}
+html[data-mode="dark"] .mode-tag{background:transparent;border:1px solid var(--line2);color:var(--muted)}
+/* ---------- type: EB Garamond in both themes (a Garamond with enough weight for phones and the smartboard) ---------- */
+h1, h2, .row .title, .row .num, #word, .card .en, .intro .big, .fin, .score-big, .cover-mark, .sheet h3{font-family:'EB Garamond',Georgia,serif;font-weight:600;letter-spacing:0}
+h1{font-size:2.9rem;line-height:1.02}
+#word, .card .en{font-size:calc(var(--fs-word) * 1.05)}
+.row .title{font-size:1.24rem;font-weight:500}
+.row .num{font-size:1.5rem;font-weight:500}
+.fin{font-style:italic;font-weight:500}
+.score-big{font-size:1.45rem;font-weight:500}
+.cover-mark{font-size:1.15rem;font-style:italic;font-weight:500}
+@media (min-width:900px) and (min-height:620px){ h1{font-size:4rem} #word, .card .en{font-size:4rem} .row .title{font-size:1.5rem} }
+/* ---------- light mode, quiet layer: hairlines and outlined buttons; strong answer colours kept for the smartboard ---------- */
+html[data-mode="light"] .app::before{height:1px;opacity:1}
+html[data-mode="light"] .progress{height:2px}
+html[data-mode="light"] .btn:not(.ok){background:transparent;color:var(--accent);border:1px solid var(--accent);box-shadow:none;letter-spacing:2.4px}
+html[data-mode="light"] .btn:not(.ok):hover{background:var(--accent-soft)}
+html[data-mode="light"] #intro-quiz, html[data-mode="light"] #r-primary:not(.ok){background:var(--accent);color:#fff;box-shadow:none}
+html[data-mode="light"] .btn.ok{box-shadow:none}
+html[data-mode="light"] .navbtn{border-width:1px;letter-spacing:2px}
+html[data-mode="light"] .opt, html[data-mode="light"] .card{border-color:#E4DED6}
 /* moon / sun button on the cover */
 #cover{position:relative}
 /* sits in the empty strip above every screen's header, so it shows on all screens */
@@ -863,7 +922,8 @@ function startConfetti(){
   confOn = true;
   const c = $('confetti'), ctx = c.getContext('2d');
   c.width = innerWidth; c.height = innerHeight;
-  const cols = ['#C9A24B','#944E38','#5F7F1F','#E8DCD0'];
+  const cols = document.documentElement.getAttribute('data-mode')==='dark'
+    ? ['#C9A24B','#8A7656','#EDE5D8','#7E8A55'] : ['#C9A24B','#944E38','#5F7F1F','#E8DCD0'];
   const ps = Array.from({length:150}, () => ({x:Math.random()*c.width, y:Math.random()*c.height-c.height,
     col:cols[Math.random()*cols.length|0], s:Math.random()*6+4, vy:Math.random()*3+2, vx:Math.random()*2-1}));
   let frames = 0;
@@ -957,7 +1017,7 @@ const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 function applyMode(mode){
   document.documentElement.setAttribute('data-mode', mode);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', mode==='dark' ? '#171310' : '#944E38');
+  if(meta) meta.setAttribute('content', mode==='dark' ? '#1A1715' : '#944E38');
   const b = $('theme-btn');
   if(b){ b.innerHTML = mode==='dark' ? SUN : MOON; b.setAttribute('aria-label', mode==='dark' ? 'Light mode' : 'Dark mode'); }
 }
