@@ -342,8 +342,10 @@ html[data-mode="dark"] .pill{background:transparent}
 html[data-mode="dark"] .mode-tag{background:transparent;border:1px solid var(--line2);color:var(--muted)}
 /* ---------- type: titles stay in Playfair; on the Learn / Quiz screens the word uses the same
    family as the answer options (Lato), so the whole test screen reads as one ---------- */
-#word, .card .en{font-family:'Lato',system-ui,sans-serif;font-weight:700;letter-spacing:-.2px;font-size:calc(var(--fs-word) * .92)}
-@media (min-width:900px) and (min-height:620px){ #word, .card .en{font-size:3.9rem} }
+#word, .card .en{font-family:'Lato',system-ui,sans-serif;font-weight:400;letter-spacing:-.3px;line-height:1.12;font-size:clamp(2.5rem, 10.5vw, 3.2rem)}
+/* more air between the word and the answer options */
+.word-col{gap:14px;margin-bottom:40px}
+@media (min-width:900px) and (min-height:620px){ #word, .card .en{font-size:4.8rem} .word-col{margin-bottom:48px} }
 /* ---------- light mode, quiet layer: hairlines and outlined buttons; strong answer colours kept for the smartboard ---------- */
 html[data-mode="light"] .app::before{height:1px;opacity:1}
 html[data-mode="light"] .progress{height:2px}
