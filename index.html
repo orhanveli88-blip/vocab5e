@@ -363,7 +363,9 @@ html[data-mode="light"] .opt, html[data-mode="light"] .card{border-color:#E4DED6
 .theme-btn svg{width:18px;height:18px}
 @media (min-width:900px) and (min-height:620px){ .theme-btn{top:10px;right:14px;padding:7px} .theme-btn svg{width:22px;height:22px} }
 .alt{display:block;font-size:.58em;opacity:.7;margin-top:.15em;white-space:nowrap}
-.m-item .alt{display:inline;font-size:.85em;margin:0 0 0 .3em;opacity:.75}
+.m-item .alt{display:block;font-size:.78em;margin:2px 0 0;opacity:.7;font-weight:400}
+.alt.ame{font-size:.46em;margin-top:.3em}
+.m-item .alt.ame{font-size:.78em;margin-top:2px}
 /* verbs */
 .lvtag{font-family:'Lato',system-ui,sans-serif;font-size:.68rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-left:6px;vertical-align:2px}
 .btn-sub{display:block;font-size:.68rem;letter-spacing:1px;opacity:.7;margin-top:4px;font-weight:400}
@@ -647,7 +649,7 @@ function myRecord(w, right){
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
 /* "trainers / sneakers" -> British word, American word on a second, smaller line */
-const enHTML = en => { const p = en.split(' / '); return p.length===2 ? `${esc(p[0])}<span class="alt">/ ${esc(p[1])}</span>` : esc(en); };
+const enHTML = en => { const p = en.split(' / '); return p.length===2 ? `${esc(p[0])}<span class="alt ame">${esc(p[1])}</span>` : esc(en); };
 const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LEVELS = ['Easy','Medium','Hard'];
@@ -849,7 +851,7 @@ function answer(k){
   const right = o===it.w.tr;
   if(it.pick===null){ it.pick = o; if(!it.w._verb) myRecord(it.w, right); }   // the first choice decides the score
   it.last = o;
-  if(right) it.solved = true; else (it.tried = it.tried || []).push(o);
+  if(right){ it.solved = true; if(it.w._verb) vSayAfterTone(vSpoken(it.w._verb, it.w._part)); } else (it.tried = it.tried || []).push(o);
   playTone(right ? 'correct' : 'wrong');
   paintAnswer(true);
   $('q-score').textContent = scoreOf();
@@ -964,7 +966,14 @@ const VPARTS = { v2: { name: 'Past Simple', short: 'V2' }, v3: { name: 'Past Par
 let VB = { part: 'v2', s: 0 };
 const vForms = (v, part) => v[part];
 const vShow = (v, part) => v[part].join(' / ');
-const vSay = v => `${v.v1}, ${v.v2[0]}, ${v.v3[0]}`;
+/* what the speech engine should hear: same spelling, different sound */
+const V_SOUND = { read: { v2: 'red', v3: 'red' }, tear: { v1: 'tare' } };
+function vSpoken(v, part, form){
+  const fix = V_SOUND[v.v1] && V_SOUND[v.v1][part];
+  if(fix) return fix;
+  return form || (part==='v1' ? v.v1 : v[part].join(', '));
+}
+const vSay = v => `${vSpoken(v,'v1')}, ${vSpoken(v,'v2', v.v2[0])}, ${vSpoken(v,'v3', v.v3[0])}`;
 const vKey = (part, mode, s) => `vb_${part}_${mode}_${s}`;
 const vBest = (part, mode, s) => lsGet(vKey(part, mode, s), null);
 function vSetBest(part, mode, s, v){ const b = vBest(part, mode, s); if(b===null || v>b) lsSet(vKey(part, mode, s), v); }
@@ -988,6 +997,8 @@ function vOptions(v, part){
   for(const p of pool){ if(out.length>=3) break; if(acc.has(p) || out.includes(p) || p===right) continue; out.push(p); }
   return shuffle([right, ...out]);
 }
+/* read the right form aloud after the soft "correct" tone (respects the sound on/off button) */
+function vSayAfterTone(text){ if(!soundOn) return; setTimeout(() => speak(text), 420); }
 function vItem(v, part){ return { en: v.v1, tr: vShow(v, part), _verb: v, _part: part }; }
 
 /* ---------- screens ---------- */
@@ -1028,7 +1039,7 @@ function startVerbLearn(){
     words: VERB_SETS[VB.s].verbs.map(v => {
       const forms = VB.part==='v2' ? vShow(v,'v2') : `${vShow(v,'v2')} – ${vShow(v,'v3')}`;
       return { en: v.v1, tr: forms, trHTML: `${esc(forms)}<span class="mean">${esc(v.tr)}</span>`,
-               say: VB.part==='v2' ? v.v2.join(', ') : vSay(v) };
+               say: VB.part==='v2' ? vSpoken(v,'v2') : vSay(v), sayBase: vSpoken(v,'v1') };
     }) };
   initAudio(); loadVoices();
   $('l-where').textContent = vWhere();
@@ -1073,7 +1084,7 @@ function renderW(){
   if(it.solved && it.shown){ fb.className = 'w-fb'; fb.innerHTML = `The answer is <b>${esc(vShow(it.v, VB.part))}</b>`; }
   else if(it.solved){ fb.className = 'w-fb good'; fb.innerHTML = `&#10003; Correct${it.v[VB.part].length>1 ? ` · also: ${esc(it.v[VB.part].filter(f => vNorm(f)!==vNorm(it.answer)).join(', '))}` : ''}`; }
   else if(it.tries>0){ fb.className = 'w-fb badv'; fb.innerHTML = `&#10007; Not quite. Try again.` + (it.tries>=3 ? ` <button class="link" id="w-show">Show the answer</button>` : '');
-    const sh = $('w-show'); if(sh) sh.onclick = () => { it.shown = true; it.solved = true; it.answer = vShow(it.v, VB.part); renderW(); $('w-go').focus({preventScroll:true}); }; }
+    const sh = $('w-show'); if(sh) sh.onclick = () => { it.shown = true; it.solved = true; it.answer = vShow(it.v, VB.part); if(soundOn) speak(vSpoken(it.v, VB.part)); renderW(); $('w-go').focus({preventScroll:true}); }; }
   else { fb.className = 'w-fb'; fb.innerHTML = ''; }
   $('w-go').firstElementChild.textContent = !it.solved ? 'Check' : (wr.idx===n-1 ? 'Finish' : 'Next');
   $('w-prev').disabled = wr.idx===0;
@@ -1087,7 +1098,7 @@ function wGo(){
     it.answer = vNorm(val);
     const ok = vAccept(val, it.v[VB.part]);
     if(it.first===null) it.first = ok;
-    if(ok){ it.solved = true; playTone('correct'); renderW(); $('w-go').focus({preventScroll:true}); }
+    if(ok){ it.solved = true; playTone('correct'); vSayAfterTone(vSpoken(it.v, VB.part, it.answer)); renderW(); $('w-go').focus({preventScroll:true}); }
     else { it.tries++; playTone('wrong'); renderW(); $('w-in').classList.remove('shake'); void $('w-in').offsetWidth; $('w-in').classList.add('shake'); }
     return;
   }
@@ -1111,7 +1122,7 @@ function finishVerbs(kind){
   wrong.forEach(v => {
     const d = document.createElement('div'); d.className = 'm-item';
     d.innerHTML = `<span class="en">${esc(v.v1)}</span><button class="audio" aria-label="Listen">${SPEAKER}</button><span class="tr">${esc(VB.part==='v2' ? vShow(v,'v2') : vShow(v,'v2')+' – '+vShow(v,'v3'))}</span>`;
-    d.querySelector('.audio').onclick = () => speak(VB.part==='v2' ? v.v2.join(', ') : vSay(v));
+    d.querySelector('.audio').onclick = () => speak(VB.part==='v2' ? vSpoken(v,'v2') : vSay(v));
     items.appendChild(d);
   });
   $('r-mistakes').style.display = perfect ? 'none' : '';
@@ -1258,7 +1269,7 @@ $('vi-write').onclick = () => startVerbWrite();
 $('w-go').onclick = wGo;
 $('w-prev').onclick = wBack;
 $('w-exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); openVIntro(); };
-$('w-audio').onclick = () => speak(wr.items[wr.idx].v.v1);
+$('w-audio').onclick = () => speak(vSpoken(wr.items[wr.idx].v, 'v1'));
 $('intro-back').onclick = () => { renderSets(); show('sets'); };
 $('intro-learn').onclick = startLearn;
 $('intro-quiz').onclick = beginQuiz;
@@ -1272,7 +1283,7 @@ $('l-exit').onclick = () => { if(hasSpeech) speechSynthesis.cancel(); learn && l
 $('prev').onclick = () => go(-1);
 $('snd').onclick = toggleSound; renderSound();
 $('next').onclick = () => go(1);
-$('q-audio').onclick = () => speak(round.items[round.idx].w.en);
+$('q-audio').onclick = () => { const w = round.items[round.idx].w; speak(w._verb ? vSpoken(w._verb,'v1') : w.en); };
 $('q-slow').onclick = () => speakSlow(round.items[round.idx].w.en);
 $('r-retry').onclick = () => startRound(S, 'quiz');
 $('r-next').onclick = () => openIntro(S+1);
@@ -1321,7 +1332,7 @@ document.addEventListener('keydown', e => {
   if(k in map){ answer(map[k]); e.preventDefault(); }
   else if(k==='arrowright' || k==='enter'){ go(1); e.preventDefault(); }
   else if(k==='arrowleft'){ go(-1); e.preventDefault(); }
-  else if(k===' '){ speak(round.items[round.idx].w.en); e.preventDefault(); }
+  else if(k===' '){ const w = round.items[round.idx].w; speak(w._verb ? vSpoken(w._verb,'v1') : w.en); e.preventDefault(); }
   else if(k==='l'){ speakSlow(round.items[round.idx].w.en); }
   else if(k==='m'){ toggleSound(); }
 });
